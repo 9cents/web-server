@@ -1,4 +1,4 @@
-const signinHandler = (db, bcrypt) => (req, res) => {
+const loginHandler = (db, bcrypt) => (req, res) => {
     const {email, password} = req.body;
     if (!email || !password) {
         return res.status(400).json('unsuccessful')
@@ -9,5 +9,5 @@ const signinHandler = (db, bcrypt) => (req, res) => {
 }
 
 module.exports = {
-    signinHandler
+    loginHandler
 }

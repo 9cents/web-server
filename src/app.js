@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt-nodejs');
 const cors = require('cors');
 
-const signin = require('./controllers/signin');
+const login = require('./controllers/login');
 const register = require('./controllers/register');
 
 const app = express();
@@ -19,9 +19,9 @@ app.get("/", (req, res, next) => {
   res.send("Hello from backend");
 });
 
-// Sign in route for intructor.
+// Login route for intructor.
 // First arg is database reference, second is bcrypt to hash password
-app.post('/signin', signin.signinHandler(db, bcrypt))
+app.post('/login', login.loginHandler(db, bcrypt))
 app.post('/register', register.registerHandler(db, bcrypt))
 
 module.exports = app;
