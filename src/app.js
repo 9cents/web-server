@@ -6,13 +6,15 @@ const cors = require('cors');
 const login = require('./controllers/login');
 const register = require('./controllers/register');
 
+// Set up Express App
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
-// const { Client } = require("pg");
-// const client = new Client();
-// client.connect();
+// PostgreSQL connection set up
+const { Pool } = require("pg");
+const pool = new Pool();
 
 app.get("/", (req, res, next) => {
   // console.log("hello world");
@@ -21,7 +23,7 @@ app.get("/", (req, res, next) => {
 
 // Login route for intructor.
 // First arg is database reference, second is bcrypt to hash password
-app.post('/login', login.loginHandler(db, bcrypt))
-app.post('/register', register.registerHandler(db, bcrypt))
+app.post('/login', login.loginHandler(pool, bcrypt))
+app.post('/register', register.registerHandler(pool, bcrypt))
 
 module.exports = app;
