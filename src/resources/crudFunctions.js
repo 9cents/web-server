@@ -1,6 +1,30 @@
 // GET /resource
 getFunc = (db, resource) => (req, res, next) => {
-  db.query(`SELECT * FROM ${resource.name};`, (err, response) => {
+  const query = req.query;
+
+  var queryText = `SELECT * FROM ${resource.name} `;
+
+  // if user passed in query
+  if (JSON.stringify(query) !== JSON.stringify({})) {
+    queryText += "WHERE ";
+    // check if there are conditions to form WHERE clause
+    fieldPresent = false;
+    const allFields = [...resource.fields, resource.primaryKey];
+    allFields.forEach((val) => {
+      if (query.hasOwnProperty(val)) {
+        queryText += `${val}=`;
+        queryText += `'${query[val]}', `;
+        fieldPresent = true;
+      }
+    });
+    if (!fieldPresent) {
+      res.status(422).send("No conditions found.");
+      return;
+    }
+    queryText = queryText.slice(0, -2); // remove extra comma and space
+  }
+
+  db.query(queryText, (err, response) => {
     if (err) {
       console.log("Error getting rows:", err.detail);
       res.status(500).send(err);

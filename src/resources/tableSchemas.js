@@ -22,7 +22,7 @@ const levels = {
 const questions = {
   name: "questions",
   fields: ["body"],
-  primaryKey: "answer_id",
+  primaryKey: "question_id",
 };
 
 const answers = {

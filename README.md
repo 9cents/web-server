@@ -35,7 +35,7 @@ To run server in development mode:
 For example, for table `players`, the endpoints and SQL queries are as such:
 
 ##### GET
-If params are specified, will translate to WHERE clause
+If query is specified, will translate to WHERE clause
 ```
 GET /players
 SELECT * FROM players;
