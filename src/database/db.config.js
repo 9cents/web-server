@@ -1,14 +1,9 @@
 module.exports = {
-  // Comment/uncomment wherever needed
-  HOST: process.env.PGHOST || "172.21.148.168",
-  USER: process.env.PGUSER || "admin",
-  PASSWORD: process.env.PGPASSWORD || "ninecent",
-  DB: process.env.PGDATABASE || "Ninecent_DB",
-  PORT: process.env.PGPORT || 5432,
-  // HOST: "localhost",
-  // USER: "postgres",
-  // PASSWORD: "irvin123",
-  // DB: "Ninecent_Local",
+  HOST: "172.21.148.168",
+  USER: "admin",
+  PASSWORD: "ninecent",
+  DB: "Ninecent_DB",
+  PORT: 5432,
   dialect: "postgres",
   pool: {
     max: 5,

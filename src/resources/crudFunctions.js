@@ -2,7 +2,7 @@
 getFunc = (db, resource) => (req, res, next) => {
   const query = req.query;
 
-  var queryText = `SELECT * FROM ${resource.name} `;
+  var queryText = `SELECT * FROM public."${resource.name}" `;
 
   // if user passed in query
   if (JSON.stringify(query) !== JSON.stringify({})) {
@@ -24,12 +24,13 @@ getFunc = (db, resource) => (req, res, next) => {
     queryText = queryText.slice(0, -2); // remove extra comma and space
   }
 
+  console.log(queryText);
   db.query(queryText, (err, response) => {
     if (err) {
       console.log("Error getting rows:", err.detail);
       res.status(500).send(err);
     } else {
-      res.send(response);
+      res.send(response.rows);
     }
   });
 };
@@ -50,7 +51,7 @@ insertOne = (db, resource) => (req, res, next) => {
 
   const queryText =
     "INSERT INTO " +
-    `${resource.name}(${resource.fields.toString()})` +
+    `public."${resource.name}"(${resource.fields.toString()})` +
     `VALUES(${resource.fields.map((val, idx) => `$${idx + 1}`).toString()})`;
 
   db.query(queryText, valuesList, (err, response) => {
@@ -70,7 +71,7 @@ updateOne = (db, resource) => (req, res, next) => {
   delete valuesObject[conditions];
 
   // queryText to form SQL query
-  var queryText = "UPDATE " + `${resource.name} ` + "SET ";
+  var queryText = "UPDATE " + `public."${resource.name}" ` + "SET ";
 
   // check if there are values to form SET clause
   var fieldPresent = false;
@@ -128,7 +129,7 @@ putFunc = (db, resource) => (req, res, next) => {
 deleteFunc = (db, resource) => (req, res, next) => {
   const valuesObject = req.body;
 
-  var queryText = "DELETE FROM " + `${resource.name} ` + "WHERE ";
+  var queryText = "DELETE FROM " + `public."${resource.name}" ` + "WHERE ";
   // check if there are values to form WHERE clause
   var fieldPresent = false;
   const allFields = [...resource.fields, resource.primaryKey];
