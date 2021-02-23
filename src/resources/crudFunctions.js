@@ -18,7 +18,7 @@ getFunc = (db, resource) => (req, res, next) => {
       }
     });
     if (!fieldPresent) {
-      res.status(422).send("No conditions found.");
+      res.json({status: 422, message: 'No conditions found.'});
       return;
     }
     queryText = queryText.slice(0, -2); // remove extra comma and space
@@ -28,9 +28,9 @@ getFunc = (db, resource) => (req, res, next) => {
   db.query(queryText, (err, response) => {
     if (err) {
       console.log("Error getting rows:", err.detail);
-      res.status(500).send(err);
+      res.json({status: 500, message: err});
     } else {
-      res.send(response.rows);
+      res.json({status: 200, message: 'Rows returned.', data : response.rows})
     }
   });
 };
@@ -44,8 +44,7 @@ insertOne = (db, resource) => (req, res, next) => {
     if (valuesObject.hasOwnProperty(val)) {
       return valuesObject[val];
     } else {
-      res.status(422).send(`Value for column ${val} not found.`);
-      return;
+      res.json({status: 422, message: `Value for column ${val} not found.`});
     }
   });
 
@@ -57,9 +56,9 @@ insertOne = (db, resource) => (req, res, next) => {
   db.query(queryText, valuesList, (err, response) => {
     if (err) {
       console.error("Error inserting new row:", err.detail);
-      res.status(500).send(err);
+      res.json({status: 500, message: err});
     } else {
-      res.send("Row inserted.");
+      res.json({status: 200, message: 'Row inserted.', data : response.rows})
     }
   });
 };
@@ -83,7 +82,7 @@ updateOne = (db, resource) => (req, res, next) => {
     }
   });
   if (!fieldPresent) {
-    res.status(422).send("No values to set.");
+    res.json({status: 422, message: `No values to set.`});
     return;
   }
 
@@ -100,7 +99,7 @@ updateOne = (db, resource) => (req, res, next) => {
     }
   });
   if (!fieldPresent) {
-    res.status(422).send("No conditions found.");
+    res.json({status: 422, message: `No conditions found.`});
     return;
   }
 
@@ -109,10 +108,10 @@ updateOne = (db, resource) => (req, res, next) => {
   db.query(queryText, (err, response) => {
     if (err) {
       console.error("Error updating row:", err.detail);
-      res.status(500).send(err);
+      res.json({status: 500, message: err});
       return;
     }
-    res.send("Updated row.");
+    res.json({status: 200, message: 'Row(s) updated.', data : response.rows})
   });
 };
 
@@ -141,7 +140,7 @@ deleteFunc = (db, resource) => (req, res, next) => {
     }
   });
   if (!fieldPresent) {
-    res.status(422).send("No conditions found.");
+    res.json({status: 422, message: `No conditions found.`});
     return;
   }
 
@@ -150,10 +149,10 @@ deleteFunc = (db, resource) => (req, res, next) => {
   db.query(queryText, (err, response) => {
     if (err) {
       console.error("Error updating row:", err.detail);
-      res.status(500).send(err);
+      res.json({status: 500, message: err});
       return;
     }
-    res.send("Deleted row(s).");
+    res.json({status: 200, message: 'Row(s) deleted.', data : response.rows});
   });
 };
 

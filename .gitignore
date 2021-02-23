@@ -1,6 +1,3 @@
-# Database configuration
-db.config.js
-
 # Logs
 logs
 *.log

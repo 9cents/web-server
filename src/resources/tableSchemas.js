@@ -39,7 +39,7 @@ const groups = {
 
 const players = {
   name: "player",
-  fields: ["player_name", "character", "password", "group_id"],
+  fields: ["player_name", "character", "password", "group_id", "level_id"],
   primaryKey: "player_id",
 };
 
