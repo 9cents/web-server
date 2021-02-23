@@ -2,7 +2,7 @@
 getFunc = (db, resource) => (req, res, next) => {
   const query = req.query;
 
-  var queryText = `SELECT * FROM public."${resource.name}" `;
+  var queryText = `SELECT * FROM ${resource.name} `;
 
   // if user passed in query
   if (JSON.stringify(query) !== JSON.stringify({})) {
@@ -35,6 +35,57 @@ getFunc = (db, resource) => (req, res, next) => {
   });
 };
 
+// GET /accuracy
+getAccuracy = (db, resource) => (req, res, next) => {
+  const query = {
+    player_id: req.query.player_id
+  }
+
+  var queryText = `WITH num_correct AS(SELECT player_id, CAST(COUNT(correct) as FLOAT) AS nums\
+  FROM response, answer\
+  WHERE response.answer_id = answer.answer_id\
+  AND answer.correct = True\
+  GROUP BY player_id),\
+  num_total AS (SELECT player_id, CAST(COUNT(correct) as FLOAT) AS nums\
+  FROM response, answer\
+  WHERE response.answer_id = answer.answer_id\ 
+  GROUP BY player_id)\
+  SELECT player.player_name, num_correct.nums AS correct, num_total.nums - num_correct.nums AS incorrect,\
+  COALESCE(num_correct.nums/num_total.nums*100, 0) AS percentage\
+  FROM num_correct, num_total, player\
+  WHERE num_correct.player_id = player.player_id\
+  AND player.player_id = ` + query.player_id;
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows:", err.detail);
+      res.json({status: 500, message: err});
+    } else {
+      res.json({status: 200, message: 'Rows returned.', data : response.rows})
+    }
+  });
+};
+
+// GET /history
+getHistory = (db, resource) => (req, res, next) => {
+
+  var queryText = `SELECT player_name, question_body, answer_body, correct, time\
+  FROM player, question, answer, response\
+  WHERE player.player_id = response.player_id\
+  AND response.answer_id = answer.answer_id\
+  AND question.question_id = answer.question_id\
+  LIMIT 20`;
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows:", err.detail);
+      res.json({status: 500, message: err});
+    } else {
+      res.json({status: 200, message: 'Rows returned.', data : response.rows})
+    }
+  });
+};
+
 // to insert one, used with PUT
 insertOne = (db, resource) => (req, res, next) => {
   const valuesObject = { ...req.body };
@@ -50,7 +101,7 @@ insertOne = (db, resource) => (req, res, next) => {
 
   const queryText =
     "INSERT INTO " +
-    `public."${resource.name}"(${resource.fields.toString()})` +
+    `${resource.name}(${resource.fields.toString()})` +
     `VALUES(${resource.fields.map((val, idx) => `$${idx + 1}`).toString()})`;
 
   db.query(queryText, valuesList, (err, response) => {
@@ -70,7 +121,7 @@ updateOne = (db, resource) => (req, res, next) => {
   delete valuesObject[conditions];
 
   // queryText to form SQL query
-  var queryText = "UPDATE " + `public."${resource.name}" ` + "SET ";
+  var queryText = "UPDATE " + `${resource.name} ` + "SET ";
 
   // check if there are values to form SET clause
   var fieldPresent = false;
@@ -128,7 +179,7 @@ putFunc = (db, resource) => (req, res, next) => {
 deleteFunc = (db, resource) => (req, res, next) => {
   const valuesObject = req.body;
 
-  var queryText = "DELETE FROM " + `public."${resource.name}" ` + "WHERE ";
+  var queryText = "DELETE FROM " + `${resource.name} ` + "WHERE ";
   // check if there are values to form WHERE clause
   var fieldPresent = false;
   const allFields = [...resource.fields, resource.primaryKey];
@@ -158,6 +209,8 @@ deleteFunc = (db, resource) => (req, res, next) => {
 
 module.exports = {
   getFunc,
+  getAccuracy,
+  getHistory,
   putFunc,
   deleteFunc,
 };
