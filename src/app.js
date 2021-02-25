@@ -27,7 +27,7 @@ app.get("/test", (req, res, next) => {
 
 // Login route for instructor.
 // First arg is database reference, second is bcrypt to hash password
-app.post("/login", login.loginHandler(pool, bcrypt));
+app.get("/login", login.loginHandler(pool, bcrypt));
 app.post("/register", register.registerHandler(pool, bcrypt));
 
 
