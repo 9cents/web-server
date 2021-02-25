@@ -5,7 +5,7 @@ const loginHandler = (db, bcrypt) => (req, res) => {
   }
 
   if (!query.name || !query.password) {
-    return res.json({status: 500, message: 'Entries must not be empty!'});
+    return res.status(500).json({message: 'Entries must not be empty!'});
   }
 
   var queryText = "SELECT * FROM player WHERE player_name = '"
@@ -14,20 +14,20 @@ const loginHandler = (db, bcrypt) => (req, res) => {
   // Database SQL query goes here
   db.query(queryText, (err, response) => {
     if (err) {
-      res.json({status: 500, message: err});
+      res.status(500).json({message: err});
     } else {
       if (response.rows[0]){
         bcrypt.compare(query.password, response.rows[0].password, function(err, isMatch) {
           if(!isMatch){
-            res.json({status: 404, message: 'Passwords do not match'});
+            res.status(404).json({message: 'Passwords do not match'});
           } else {
-            res.json({status: 200, message: 'Passwords match'});
+            res.status(200).json({message: 'Passwords match'});
             // Send JWT
           }
         });
       }
       else {
-        res.json({status: 404, message: 'Player not found.'});
+        res.status(404).json({message: 'Player not found.'});
       }
     }
   });

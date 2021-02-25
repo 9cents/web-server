@@ -5,7 +5,7 @@ const registerHandler = (db, bcrypt) => (req, res) => {
   }
 
   if (!query.name || !query.password) {
-    return res.json({status: 500, message: 'Entries must not be empty!'});
+    return res.status(500).json({message: 'Entries must not be empty!'});
   }
   
   // Hashing the password input
@@ -16,9 +16,9 @@ const registerHandler = (db, bcrypt) => (req, res) => {
 
     db.query(queryText, (err, response) => {
       if (err) {
-        res.json({status: 500, message: 'Username already exists.'});
+        res.status(500).json({message: 'Username already exists.'});
       } else {
-        res.json({status: 200, message: 'Player added.'});
+        res.status(200).json({message: 'Player added.'});
       }
     });
   });  
