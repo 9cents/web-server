@@ -16,7 +16,7 @@ const registerHandler = (db, bcrypt) => (req, res) => {
 
     db.query(queryText, (err, response) => {
       if (err) {
-        res.json({status: 500, message: err});
+        res.json({status: 500, message: 'Username already exists.'});
       } else {
         res.json({status: 200, message: 'Player added.'});
       }
