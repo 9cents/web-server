@@ -5,8 +5,8 @@ Content-Type: application/json
 
 POST /register
 {
-  name: "name",
-  password: "password"
+  "name": "name",
+  "password": "password"
 }
 ```
 | Output   | Description                            |
@@ -22,8 +22,8 @@ Content-Type: application/json
 
 GET /login
 {
-  name: "name",
-  password: "password"
+  "name": "name",
+  "password": "password"
 }
 ```
 | Output   | Description                            |
@@ -40,9 +40,9 @@ Content-Type: application/json
 
 PUT /player
 {
-  character: "Assassin"
-  condition: {
-    player_id: 2
+  "character": "Assassin"
+  "conditions": {
+    "player_id": 2
   }
 }
 ```
@@ -57,9 +57,9 @@ Content-Type: application/json
 
 PUT /player
 {
-  group_id: 1
-  condition: {
-    player_id: 2
+  "group_id": 1
+  "conditions": {
+    "player_id": 2
   }
 }
 ```
