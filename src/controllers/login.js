@@ -33,6 +33,42 @@ const loginHandler = (db, bcrypt) => (req, res) => {
   });
 };
 
+const loginHandlerWeb = (db, bcrypt) => (req, res) => {
+  const query = {
+    name: req.query.name,
+    password: req.query.password
+  }
+
+  if (!query.name || !query.password) {
+    return res.status(500).json({message: 'Entries must not be empty!'});
+  }
+
+  var queryText = "SELECT * FROM instructor WHERE instructor_name = '"
+  + query.name + "'";
+
+  // Database SQL query goes here
+  db.query(queryText, (err, response) => {
+    if (err) {
+      res.status(500).json({message: err});
+    } else {
+      if (response.rows[0]){
+        bcrypt.compare(query.password, response.rows[0].password, function(err, isMatch) {
+          if(!isMatch){
+            res.status(404).json({message: 'Passwords do not match'});
+          } else {
+            res.status(200).json({message: 'Passwords match'});
+            // Send JWT
+          }
+        });
+      }
+      else {
+        res.status(404).json({message: 'Instructor not found.'});
+      }
+    }
+  });
+};
+
 module.exports = {
   loginHandler,
+  loginHandlerWeb
 };
