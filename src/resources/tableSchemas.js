@@ -15,7 +15,7 @@ const towers = {
 
 const levels = {
   name: "level",
-  fields: ["tower_id"],
+  fields: ["level_name", "tower_id"],
   primaryKey: "level_id",
 };
 

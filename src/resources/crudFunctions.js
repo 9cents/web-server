@@ -90,13 +90,18 @@ insertOne = (db, resource) => (req, res, next) => {
   const valuesObject = { ...req.body };
 
   // check if every column is found in req
-  valuesList = resource.fields.map((val) => {
-    if (valuesObject.hasOwnProperty(val)) {
-      return valuesObject[val];
-    } else {
-      res.status(422).json({message: `Value for column ${val} not found.`});
-    }
-  });
+  try {
+    valuesList = resource.fields.map((val) => {
+      if (valuesObject.hasOwnProperty(val)) {
+        return valuesObject[val];
+      } else {
+        res.status(422).send(`Value for column ${val} not found.`);
+        throw `Value for column ${val} not found.`;
+      }
+    });
+  } catch (err) {
+    return;
+  }
 
   const queryText =
     "INSERT INTO " +
