@@ -19,7 +19,7 @@ const loginHandler = (db, bcrypt) => (req, res) => {
       if (response.rows[0]){
         bcrypt.compare(query.password, response.rows[0].password, function(err, isMatch) {
           if(!isMatch){
-            res.status(404).json({message: 'Passwords do not match'});
+            res.status(401).json({message: 'Passwords do not match'});
           } else {
             res.status(200).json({message: 'Passwords match'});
             // Send JWT
@@ -27,7 +27,7 @@ const loginHandler = (db, bcrypt) => (req, res) => {
         });
       }
       else {
-        res.status(404).json({message: 'Player not found.'});
+        res.status(401).json({message: 'Player not found.'});
       }
     }
   });
@@ -54,7 +54,7 @@ const loginHandlerWeb = (db, bcrypt) => (req, res) => {
       if (response.rows[0]){
         bcrypt.compare(query.password, response.rows[0].password, function(err, isMatch) {
           if(!isMatch){
-            res.status(404).json({message: 'Passwords do not match'});
+            res.status(401).json({message: 'Passwords do not match'});
           } else {
             res.status(200).json({message: 'Passwords match'});
             // Send JWT
@@ -62,7 +62,7 @@ const loginHandlerWeb = (db, bcrypt) => (req, res) => {
         });
       }
       else {
-        res.status(404).json({message: 'Instructor not found.'});
+        res.status(401).json({message: 'Instructor not found.'});
       }
     }
   });

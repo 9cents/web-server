@@ -25,7 +25,7 @@ getAccuracy = (db) => (req, res, next) => {
       console.log("Error getting rows:", err.detail);
       res.status(500).json({ message: err });
     } else {
-      res.status(500).json({ message: "Rows returned.", data: response.rows });
+      res.status(200).json({ message: "Rows returned.", data: response.rows });
     }
   });
 };
