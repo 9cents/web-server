@@ -1,11 +1,14 @@
-const loginHandler = (db, bcrypt) => (req, res) => {
+const bcrypt = require("bcrypt-nodejs");
+const jwt = require("jsonwebtoken");
+
+const loginHandler = (db) => (req, res) => {
   const query = {
     name: req.query.name,
     password: req.query.password,
   };
 
   if (!query.name || !query.password) {
-    return res.status(500).json({ message: "Entries must not be empty!" });
+    return res.status(422).json({ message: "Entries must not be empty!" });
   }
 
   var queryText =
@@ -14,7 +17,7 @@ const loginHandler = (db, bcrypt) => (req, res) => {
   // Database SQL query goes here
   db.query(queryText, (err, response) => {
     if (err) {
-      res.status(500).json({ message: err });
+      res.status(500).json(err);
     } else {
       if (response.rows[0]) {
         bcrypt.compare(
@@ -36,14 +39,14 @@ const loginHandler = (db, bcrypt) => (req, res) => {
   });
 };
 
-const loginHandlerWeb = (db, bcrypt) => (req, res) => {
+const loginHandlerWeb = (db) => (req, res) => {
   const query = {
     name: req.query.name,
     password: req.query.password,
   };
 
   if (!query.name || !query.password) {
-    return res.status(500).json({ message: "Entries must not be empty!" });
+    return res.status(422).json({ message: "Entries must not be empty!" });
   }
 
   var queryText =
@@ -52,7 +55,7 @@ const loginHandlerWeb = (db, bcrypt) => (req, res) => {
   // Database SQL query goes here
   db.query(queryText, (err, response) => {
     if (err) {
-      res.status(500).json({ message: err });
+      res.status(500).json(err);
     } else {
       if (response.rows[0]) {
         bcrypt.compare(

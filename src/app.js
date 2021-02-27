@@ -1,6 +1,5 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const bcrypt = require("bcrypt-nodejs");
 const cors = require("cors");
 const pool = require("./database/db").getInstance();
 
@@ -27,10 +26,10 @@ app.get("/test", (req, res, next) => {
 
 // Login route for instructor.
 // First arg is database reference, second is bcrypt to hash password
-app.get("/login", login.loginHandler(pool, bcrypt));
-app.post("/register", register.registerHandler(pool, bcrypt));
-app.get("/loginweb", login.loginHandlerWeb(pool, bcrypt));
-app.post("/registerweb", register.registerHandlerWeb(pool, bcrypt));
+app.get("/login", login.loginHandler(pool));
+app.post("/register", register.registerHandler(pool));
+app.get("/loginweb", login.loginHandlerWeb(pool));
+app.post("/registerweb", register.registerHandlerWeb(pool));
 
 app.use("/", resourcesRouter);
 
