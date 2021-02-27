@@ -49,6 +49,12 @@ const responses = {
   primaryKey: "response_id",
 };
 
+const instructors = {
+  name: "instructor",
+  fields: ["instructor_name", "password"],
+  primaryKey: "instructor_id"
+}
+
 module.exports = [
   worlds,
   towers,
