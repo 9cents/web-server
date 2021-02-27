@@ -13,7 +13,7 @@ getFunc = (db, resource) => (req, res, next) => {
     allFields.forEach((val) => {
       if (query.hasOwnProperty(val)) {
         queryText += `${val}=`;
-        queryText += `'${query[val]}', `;
+        queryText += `'${query[val]}' AND `;
         fieldPresent = true;
       }
     });
@@ -21,9 +21,9 @@ getFunc = (db, resource) => (req, res, next) => {
       res.status(422).json({message: 'No conditions found.'});
       return;
     }
-    queryText = queryText.slice(0, -2); // remove extra comma and space
+    queryText = queryText.slice(0, -5); // remove extra comma and space
   }
-
+  
   db.query(queryText, (err, response) => {
     if (err) {
       console.log("Error getting rows:", err.detail);

@@ -77,7 +77,7 @@ PUT /player
 ```
 | Output   | Description                            |
 | ---------- | -------------------------------------- |
-| Row(s) updated.       | Character successfully assigned                  |
+| Row(s) updated.       | Group successfully assigned                  |
 
 # HISTORY
 It returns the latest 20 responses from the server.
@@ -101,3 +101,55 @@ GET /accuracy?player_id=2
 | Output   | Description                            |
 | ---------- | -------------------------------------- |
 | Rows returned.       | Accuracy successfully returned                  |
+
+# UPDATE DUNGEON QUESTION FOR PLAYER
+It takes parameters `player_id`, `id_1`, `id_2`, `id_3`, `id_4`, `id_5` and modify an existing player in the database.
+```
+Content-Type: application/json
+
+PUT /updungeon
+{
+  "player_id": 2,
+  "id_1": 1,
+  "id_2": 2,
+  "id_3": 3,
+  "id_4": 4,
+  "id_5": 5
+}
+```
+| Output   | Description                            |
+| ---------- | -------------------------------------- |
+| Dungeon updated.       | The dungeon is successfully modified                  |
+
+# UPDATE DUNGEON QUESTION FOR INSTRUCTOR
+It takes parameters `instructor_id`, `id_1`, `id_2`, `id_3`, `id_4`, `id_5` and modify an existing instructor in the database.
+```
+Content-Type: application/json
+
+PUT /updungeonweb
+{
+  "instructor_id": 1,
+  "id_1": 1,
+  "id_2": 2,
+  "id_3": 3,
+  "id_4": 4,
+  "id_5": 5
+}
+```
+| Output   | Description                            |
+| ---------- | -------------------------------------- |
+| Dungeon updated.       | The dungeon is successfully modified                  |
+
+# UPDATE DUNGEON LOCK FOR INSTRUCTOR
+It takes parameters `instructor_id` and turn on/off the lock in the database.
+```
+Content-Type: application/json
+
+PUT /updungeonlockweb
+{
+  "instructor_id": 1
+}
+```
+| Output   | Description                            |
+| ---------- | -------------------------------------- |
+| Dungeon updated.       | The dungeon is successfully modified                  |

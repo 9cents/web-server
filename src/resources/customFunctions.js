@@ -49,7 +49,93 @@ getHistory = (db) => (req, res, next) => {
   });
 };
 
+// PUT /updungeon
+putDungeon = (db) => (req, res, next) => {
+  const query = {
+    player_id: req.body.player_id,
+    id_1: req.body.id_1,
+    id_2: req.body.id_2,
+    id_3: req.body.id_3,
+    id_4: req.body.id_4,
+    id_5: req.body.id_5
+  };
+
+  var queryText = `UPDATE dungeon \
+  SET lock = False, question_1 = ` + query.id_1
+  + `, question_2 = ` + query.id_2
+  + `, question_3 = ` + query.id_3
+  + `, question_4 = ` + query.id_4
+  + `, question_5 = ` + query.id_5
+  + ` WHERE player_name = (SELECT player_name FROM player \
+    WHERE player_id = ` + query.player_id + `)`;
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows:", err.detail);
+      res.status(500).json({ message: err });
+    } else {
+      res.status(200).json({ message: "Dungeon updated." });
+    }
+  });
+};
+
+// PUT /updungeonweb
+putDungeonWeb = (db) => (req, res, next) => {
+  const query = {
+    instructor_id: req.body.instructor_id,
+    id_1: req.body.id_1,
+    id_2: req.body.id_2,
+    id_3: req.body.id_3,
+    id_4: req.body.id_4,
+    id_5: req.body.id_5
+  };
+
+  var queryText = `UPDATE instructor \
+  SET question_1 = ` + query.id_1
+  + `, question_2 = ` + query.id_2
+  + `, question_3 = ` + query.id_3
+  + `, question_4 = ` + query.id_4
+  + `, question_5 = ` + query.id_5
+  + ` WHERE instructor_id = ` + query.instructor_id;
+
+  console.log(queryText)
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows:", err.detail);
+      res.status(500).json({ message: err });
+    } else {
+      res.status(200).json({ message: "Dungeon updated." });
+    }
+  });
+};
+
+// PUT /updungeonweb
+putDungeonLockWeb = (db) => (req, res, next) => {
+  const query = {
+    instructor_id: req.body.instructor_id
+  };
+
+  var queryText = `UPDATE instructor \
+  SET lock = NOT lock \
+  WHERE instructor_id = ` + query.instructor_id;
+
+  console.log(queryText)
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows:", err.detail);
+      res.status(500).json({ message: err });
+    } else {
+      res.status(200).json({ message: "Dungeon Lock updated." });
+    }
+  });
+};
+
 module.exports = {
   getAccuracy,
   getHistory,
+  putDungeon,
+  putDungeonWeb,
+  putDungeonLockWeb
 };

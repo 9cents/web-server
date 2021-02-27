@@ -15,11 +15,14 @@ const registerHandler = (db) => (req, res) => {
   bcrypt.hash(query.password, salt, null, function (err, hash) {
     var queryText =
       "INSERT INTO player(player_name, password) " +
-      "VALUES('" +
-      query.name +
-      "','" +
-      hash +
-      "')";
+      + "VALUES('" 
+      + query.name 
+      + "','" 
+      + hash 
+      + "'); \
+      INSERT INTO dungeon(player_name, lock) VALUES('"
+      + query.name 
+      + "', True);";
 
     db.query(queryText, (err, response) => {
       if (err) {

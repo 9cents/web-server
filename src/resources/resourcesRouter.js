@@ -5,7 +5,7 @@ const resourcesSchemas = require("./tableSchemas");
 
 const { getFunc, putFunc, deleteFunc } = require("./crudFunctions");
 
-const { getAccuracy, getHistory } = require("./customFunctions");
+const { getAccuracy, getHistory, putDungeon, putDungeonWeb, putDungeonLockWeb } = require("./customFunctions");
 
 resourcesSchemas.forEach((resource) => {
   // disallow inserting or updating player/instructor directly
@@ -21,5 +21,8 @@ resourcesSchemas.forEach((resource) => {
 
 router.get("/accuracy", getAccuracy(db));
 router.get("/history", getHistory(db));
+router.put("/updungeon", putDungeon(db));
+router.put("/updungeonweb", putDungeonWeb(db));
+router.put("/updungeonlockweb", putDungeonLockWeb(db));
 
 module.exports = router;
