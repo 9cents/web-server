@@ -8,6 +8,7 @@ const { getFunc, putFunc, deleteFunc } = require("./crudFunctions");
 const {
   getAccuracy,
   getHistory,
+  getDungeonQuestion,
   putDungeon,
   putDungeonWeb,
   putDungeonLockWeb,
@@ -29,6 +30,7 @@ resourcesSchemas.forEach((resource) => {
 router.get("/accuracy", getAccuracy(db));
 router.get("/history", getHistory(db));
 router.get("/responsedata", getResponses(db));
+router.get("/dungeonquestion", getDungeonQuestion(db));
 router.put("/updungeon", putDungeon(db));
 router.put("/updungeonweb", putDungeonWeb(db));
 router.put("/updungeonlockweb", putDungeonLockWeb(db));

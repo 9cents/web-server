@@ -67,6 +67,34 @@ getResponses = (db) => (req, res, next) => {
   });
 };
 
+// GET /dungeonquestion
+getDungeonQuestion = (db) => (req, res, next) => {
+  const query = {
+    question_1: req.query.question_1,
+    question_2: req.query.question_2,
+    question_3: req.query.question_3,
+    question_4: req.query.question_4,
+    question_5: req.query.question_5,
+  };
+
+  var queryText = `SELECT question_id, question_body FROM question, instructor \
+  WHERE instructor_id = 1 \
+  AND question_id <> ` + query.question_1 + ` \
+  AND question_id <> ` + query.question_2 + ` \
+  AND question_id <> ` + query.question_3 + ` \
+  AND question_id <> ` + query.question_4 + ` \
+  AND question_id <> ` + query.question_5 + ``;
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows:", err.detail);
+      res.status(500).json({ message: err });
+    } else {
+      res.status(200).json({ message: "Questions returned.", data: response.rows });
+    }
+  });
+};
+
 // PUT /updungeon
 putDungeon = (db) => (req, res, next) => {
   const query = {
@@ -170,6 +198,7 @@ module.exports = {
   getAccuracy,
   getHistory,
   getResponses,
+  getDungeonQuestion,
   putDungeon,
   putDungeonWeb,
   putDungeonLockWeb,
