@@ -31,15 +31,9 @@ const answers = {
   primaryKey: "answer_id",
 };
 
-const groups = {
-  name: "group",
-  fields: ["group_name"],
-  primaryKey: ["group_id"],
-};
-
 const players = {
   name: "player",
-  fields: ["player_name", "character", "password", "group_id", "level_id"],
+  fields: ["player_name", "character", "password", "level_id"],
   primaryKey: "player_id",
 };
 
@@ -67,7 +61,6 @@ module.exports = [
   levels,
   questions,
   answers,
-  groups,
   players,
   responses,
   instructors,
