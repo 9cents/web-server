@@ -45,13 +45,29 @@ const responses = {
 
 const instructors = {
   name: "instructor",
-  fields: ["instructor_name", "password"],
-  primaryKey: "instructor_id"
+  fields: [
+    "instructor_name",
+    "password",
+    "question_1",
+    "question_2",
+    "question_3",
+    "question_4",
+    "question_5",
+    "lock",
+  ],
+  primaryKey: "instructor_id",
 };
 
 const dungeons = {
   name: "dungeon",
-  fields: ["question_1", "question_2", "question_3", "question_4", "question_5", "lock"],
+  fields: [
+    "question_1",
+    "question_2",
+    "question_3",
+    "question_4",
+    "question_5",
+    "lock",
+  ],
   primaryKey: "player_name",
 };
 
@@ -64,5 +80,5 @@ module.exports = [
   players,
   responses,
   instructors,
-  dungeons
+  dungeons,
 ];
