@@ -30,32 +30,75 @@ getAccuracy = (db) => (req, res, next) => {
   });
 };
 
-// GET /history
-getHistory = (db) => (req, res, next) => {
-  var queryText = `SELECT player_name, question_body, answer_body, correct, time\
-  FROM player, question, answer, response\
-  WHERE player.player_id = response.player_id\
-  AND response.answer_id = answer.answer_id\
-  AND question.question_id = answer.question_id\
-  LIMIT 20`;
+// GET /progress
+getProgress = (db) => (req, res, next) => {
+  const query = {
+    player_id: req.query.player_id,
+  };
+
+  var queryText =
+    `WITH num_level AS
+    (SELECT level.tower_id, MAX(level_id)-MIN(level_id)+1 AS nums FROM level, tower
+    WHERE level.tower_id=tower.tower_id
+    GROUP BY level.tower_id
+    ORDER BY level.tower_id),
+    
+    level_progress AS
+    (SELECT tower.tower_id, MAX(level.level_id) AS current FROM response, answer, question, level, tower
+    WHERE response.answer_id = answer.answer_id
+    AND answer.question_id = question.question_id
+    AND question.level_id = level.level_id
+    AND level.tower_id = tower.tower_id
+    AND player_id = ` + query.player_id +
+    `GROUP BY tower.tower_id),
+    
+    num_correct AS
+    (SELECT level.tower_id, CAST(COUNT(correct) as FLOAT) AS nums
+    FROM response, answer, question, level
+    WHERE response.answer_id = answer.answer_id
+    AND answer.question_id = question.question_id
+    AND question.level_id = level.level_id
+    AND answer.correct = True
+    AND player_id = ` + query.player_id +
+    `GROUP BY level.tower_id),
+      
+    num_total AS
+    (SELECT level.tower_id, CAST(COUNT(correct) as FLOAT) AS nums
+    FROM response, answer, question, level
+    WHERE response.answer_id = answer.answer_id
+    AND answer.question_id = question.question_id
+    AND question.level_id = level.level_id
+    AND player_id = ` + query.player_id +
+    `GROUP BY level.tower_id),
+      
+    percentage AS
+    (SELECT num_correct.tower_id, COALESCE(num_correct.nums/num_total.nums*100, 0) AS accuracy
+    FROM num_correct, num_total
+    WHERE num_correct.tower_id = num_total.tower_id)
+    
+    SELECT tower.tower_name, COALESCE(current, 0) AS level, COALESCE(nums, 0) AS total, COALESCE(accuracy, 0) AS accuracy FROM tower 
+    LEFT JOIN num_level ON tower.tower_id = num_level.tower_id
+    LEFT JOIN level_progress ON tower.tower_id = level_progress.tower_id
+    LEFT JOIN percentage ON tower.tower_id = percentage.tower_id`;
 
   db.query(queryText, (err, response) => {
     if (err) {
       console.log("Error getting rows:", err.detail);
       res.status(500).json({ message: err });
     } else {
-      res.status(200).json({ message: "Rows returned.", data: response.rows });
+      res.status(200).json({ message: "Progress returned.", data: response.rows });
     }
   });
 };
 
+// GET /responsedata
 getResponses = (db) => (req, res, next) => {
-  var queryText = `SELECT response_id, question_body, answer_body, correct, time \
-  FROM response, question, answer \
-  WHERE response.answer_id = answer.answer_id \
-  AND answer.question_id = question.question_id \
-  AND player.player_id = ${req.query.player_id}`
-  console.log(queryText)
+  var queryText = `SELECT response_id, question_body, answer_body, correct
+  FROM response, question, answer
+  WHERE response.answer_id = answer.answer_id
+  AND answer.question_id = question.question_id
+  AND response.player_id = ${req.query.player_id}
+  ORDER BY response_id DESC`
 
   db.query(queryText, (err, response) => {
     if (err) {
@@ -196,7 +239,7 @@ putDungeonLockWeb = (db) => (req, res, next) => {
 
 module.exports = {
   getAccuracy,
-  getHistory,
+  getProgress,
   getResponses,
   getDungeonQuestion,
   putDungeon,
