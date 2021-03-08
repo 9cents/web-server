@@ -26,13 +26,13 @@ It takes parameters `name` and `password` and create a new entry in the database
 ```
 Content-Type: application/json
 
-GET /login
+POST /login
 {
   "name": "player_name",
   "password": "password"
 }
 
-GET /loginweb
+POST /loginweb
 {
   "name": "instructor_name",
   "password": "password"
