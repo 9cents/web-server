@@ -3,8 +3,8 @@ const jwt = require("jsonwebtoken");
 
 const loginHandler = (db) => (req, res) => {
   const query = {
-    name: req.query.name,
-    password: req.query.password,
+    name: req.body.name,
+    password: req.body.password,
   };
 
   if (!query.name || !query.password) {
@@ -41,8 +41,8 @@ const loginHandler = (db) => (req, res) => {
 
 const loginHandlerWeb = (db) => (req, res) => {
   const query = {
-    name: req.query.name,
-    password: req.query.password,
+    name: req.body.name,
+    password: req.body.password,
   };
 
   if (!query.name || !query.password) {
