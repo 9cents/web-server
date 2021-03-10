@@ -71,6 +71,11 @@ const dungeons = {
   primaryKey: "player_name",
 };
 
+const progress = {
+  name: "progress",
+  fields: ["player_id", "tower_id", "level_id"],
+};
+
 module.exports = [
   worlds,
   towers,
@@ -81,4 +86,5 @@ module.exports = [
   responses,
   instructors,
   dungeons,
+  progress,
 ];

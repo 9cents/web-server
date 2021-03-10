@@ -43,14 +43,22 @@ getProgress = (db) => (req, res, next) => {
     GROUP BY level.tower_id
     ORDER BY level.tower_id),
     
+    current_progress AS
+    (SELECT tower_id, level_id AS current FROM player, progress
+    WHERE progress.player_id = player.player_id
+    AND player.player_id = ` + query.player_id +
+    `),
+
+    min_level AS
+    (SELECT level.tower_id, MIN(level_id)-1 AS nums FROM level, tower
+    WHERE level.tower_id=tower.tower_id
+    GROUP BY level.tower_id
+    ORDER BY level.tower_id),
+
     level_progress AS
-    (SELECT tower.tower_id, MAX(level.level_id) AS current FROM response, answer, question, level, tower
-    WHERE response.answer_id = answer.answer_id
-    AND answer.question_id = question.question_id
-    AND question.level_id = level.level_id
-    AND level.tower_id = tower.tower_id
-    AND player_id = ` + query.player_id +
-    `GROUP BY tower.tower_id),
+    (SELECT current_progress.tower_id, current_progress.current-min_level.nums AS current FROM current_progress, min_level
+    WHERE current_progress.tower_id = min_level.tower_id
+    ),
     
     num_correct AS
     (SELECT level.tower_id, CAST(COUNT(correct) as FLOAT) AS nums
