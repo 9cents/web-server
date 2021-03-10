@@ -14,7 +14,7 @@ const registerHandler = (db) => (req, res) => {
   var salt = bcrypt.genSaltSync(10);
   bcrypt.hash(query.password, salt, null, function (err, hash) {
     var queryText =
-      "INSERT INTO player(player_name, password) " +
+      "INSERT INTO player(player_name, password) "
       + "VALUES('" 
       + query.name 
       + "','" 

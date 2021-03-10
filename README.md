@@ -17,6 +17,10 @@ To run server in development mode:
 
 `npm run start:dev`
 
+To test server:
+
+`npm test`
+
 ---
 ## Environment Variables Explained (`.env` file)
 
@@ -32,16 +36,16 @@ To run server in development mode:
 ---
 ## API Endpoints Examples
 
-For example, for table `players`, the endpoints and SQL queries are as such:
+For example, for table `player`, the endpoints and SQL queries are as such:
 
 ##### GET
 If query is specified, will translate to WHERE clause
 ```
-GET /players
-SELECT * FROM players;
+GET /player
+SELECT * FROM player;
 
-GET /players?group_id=3
-SELECT * FROM players WHERE group_id=3;
+GET /player?player_id=3
+SELECT * FROM player WHERE player_id=3;
 ```
 
 ##### PUT
@@ -49,29 +53,29 @@ If `condition` field is present, will treat as `UPDATE` query; else will treat a
 ```
 Content-Type: application/json
 
-PUT /players
+PUT /player
 {
-  name: "John"
+  player_name: "John"
 }
-INSERT INTO players(name) VALUES('John');
+INSERT INTO player(player_name) VALUES('John');
 
-PUT /players
+PUT /player
 {
-  name: "John"
+  player_name: "John"
   condition: {
-    id: "2"
+    player_id: "2"
   }
 }
-UPDATE players SET name='John' WHERE id=2;
+UPDATE player SET player_name='John' WHERE player_id=2;
 ```
 
 ##### DELETE
 Must specify fields to delete on.
 ```
 Content-Type: application/json
-DELETE /players
+DELETE /player
 {
-  name: "Peter",
+  player_name: "Peter",
 }
-DELETE FROM players WHERE name='Peter';
+DELETE FROM player WHERE player_name='Peter';
 ```
