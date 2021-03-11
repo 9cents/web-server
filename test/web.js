@@ -16,7 +16,7 @@ const {
 
 chai.use(chaiHttp);
 
-describe('Custom API', function() {
+describe('Web Interface', function() {
 
     /*
     * Test the /POST routes
