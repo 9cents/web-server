@@ -55,7 +55,7 @@ const registerHandlerWeb = (db) => (req, res) => {
       hash +
       "')";
 
-    console.log(queryText);
+    //console.log(queryText);
 
     db.query(queryText, (err, response) => {
       if (err) {
