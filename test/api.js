@@ -17,27 +17,6 @@ const {
 chai.use(chaiHttp);
 
 describe('Custom API', function() {
-    /*
-    * Clean existing test data
-    */
-    context('Clean Test Data', () => {
-        var user = {
-            instructor_name: "Test Instructor"
-        }
-
-        it('Delete existing test instructor', done => {
-            chai.request(server)
-                .delete('/instructor')
-                .set('content-type', 'application/json')
-                .send(user)
-                .end((err, res) => {
-                    // console.error(res.body);
-                    res.should.have.status(200);
-                    expect(res.body.message).to.equal("Row(s) deleted.");
-                    done();
-                })
-        });
-    })
 
     /*
     * Test the /POST routes
@@ -123,7 +102,7 @@ describe('Custom API', function() {
             id: 1
         }
 
-        it('Return world', done => {
+        it('Return worlds', done => {
             chai.request(server)
                 .get('/world')
                 .end((err, res) => {
@@ -134,7 +113,7 @@ describe('Custom API', function() {
                 })
         });
 
-        it('Return tower', done => {
+        it('Return towers', done => {
             chai.request(server)
                 .get('/world')
                 .end((err, res) => {
@@ -149,7 +128,7 @@ describe('Custom API', function() {
                 })
         });
 
-        it('Return level', done => {
+        it('Return levels', done => {
             chai.request(server)
                 .get('/world')
                 .end((err, res) => {
@@ -165,6 +144,146 @@ describe('Custom API', function() {
                                     done();
                                 })
                         })
+                })
+        });
+
+        it('Return questions', done => {
+            chai.request(server)
+                .get('/world')
+                .end((err, res) => {
+                    chai.request(server)
+                        .get('/tower?world_id=' + res.body.data[0].world_id)
+                        .end((err, resp) => {
+                            chai.request(server)
+                                .get('/level?tower_id=' + resp.body.data[0].tower_id)
+                                .end((err, response) => {
+                                    chai.request(server)
+                                        .get('/question?level_id=' + response.body.data[0].level_id)
+                                        .end((err, responses) => {
+                                            responses.should.have.status(200);
+                                            expect(responses.body.message).to.equal("Rows returned.");
+                                            done();
+                                        })
+                                })
+                        })
+                })
+        });
+
+        it('Return answers', done => {
+            chai.request(server)
+                .get('/world')
+                .end((err, res) => {
+                    chai.request(server)
+                        .get('/tower?world_id=' + res.body.data[0].world_id)
+                        .end((err, resp) => {
+                            chai.request(server)
+                                .get('/level?tower_id=' + resp.body.data[0].tower_id)
+                                .end((err, response) => {
+                                    chai.request(server)
+                                        .get('/question?level_id=' + response.body.data[0].level_id)
+                                        .end((err, responses) => {
+                                            chai.request(server)
+                                                .get('/answer?question_id=' + responses.body.data[0].question_id)
+                                                .end((err, responsess) => {
+                                                    responsess.should.have.status(200);
+                                                    expect(responsess.body.message).to.equal("Rows returned.");
+                                                    done();
+                                                })
+                                        })
+                                })
+                        })
+                })
+        });
+    })
+
+    /*
+    * Test the /PUT routes
+    */
+    context('/PUT instructor', () => {
+        var instructor = {
+            instructor_name: "Test Instructor"
+        }
+
+        it('Update dungeon', done => {
+            chai.request(server)
+                .put('/instructor')
+                .set('content-type', 'application/json')
+                .send({
+                    question_1: 1,
+                    question_2: 2,
+                    question_3: 3,
+                    question_4: 4,
+                    question_5: 5,
+                    lock: true,
+                    conditions:{
+                        instructor_name: instructor.instructor_name
+                    }
+                })
+                .end((err, res) => {
+                    // console.error(res.body);
+                    res.should.have.status(200);
+                    expect(res.body.message).to.equal("Row(s) updated.");
+                    done();
+                })
+        });
+
+        it('Update answers', done => {
+            chai.request(server)
+                .get('/world')
+                .end((err, res) => {
+                    chai.request(server)
+                        .get('/tower?world_id=' + res.body.data[0].world_id)
+                        .end((err, resp) => {
+                            chai.request(server)
+                                .get('/level?tower_id=' + resp.body.data[0].tower_id)
+                                .end((err, response) => {
+                                    chai.request(server)
+                                        .get('/question?level_id=' + response.body.data[0].level_id)
+                                        .end((err, responses) => {
+                                            chai.request(server)
+                                                .get('/answer?question_id=' + responses.body.data[0].question_id)
+                                                .end((err, responsess) => {
+                                                    chai.request(server)
+                                                        .put('/answer')
+                                                        .set('content-type', 'application/json')
+                                                        .send({
+                                                            answer_body: responsess.body.data[0].answer_body,
+                                                            correct: responsess.body.data[0].correct,
+                                                            conditions:{
+                                                                answer_id: responsess.body.data[0].answer_id
+                                                            }
+                                                        })
+                                                        .end((err, responsesss) => {
+                                                            responsesss.should.have.status(200);
+                                                            expect(responsesss.body.message).to.equal("Row(s) updated.");
+                                                            done();
+                                                        })
+                                                })
+                                        })
+                                })
+                        })
+                })
+        });
+        })
+
+    /*
+    * Clean existing test data
+    */
+    context('Clean Test Data', () => {
+        var user = {
+            instructor_name: "Test Instructor"
+        }
+
+        it('Delete existing test instructor', done => {
+            chai.request(server)
+                .delete('/instructor')
+                .set('content-type', 'application/json')
+                .send(user)
+                .end((err, res) => {
+                    // console.error(res.body);
+                    res.should.have.status(200);
+                    expect(res.body.message).to.equal("Row(s) deleted.");
+                    done();
                 })
         });
     })
