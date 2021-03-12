@@ -15,7 +15,13 @@ const {
   getResponses,
 } = require("./customFunctions");
 
-const { getGameDungeon, getWorldNames, getWorldQuestions, getStoryData, getLeaderBoard } = require("./gameFunctions");
+const {
+  getGameDungeon,
+  getWorldNames,
+  getWorldQuestions,
+  getStoryData,
+  getLeaderBoard,
+} = require("./gameFunctions");
 
 resourcesSchemas.forEach((resource) => {
   router.get(`/${resource.name}`, getFunc(db, resource));
@@ -26,7 +32,6 @@ resourcesSchemas.forEach((resource) => {
 router.get("/accuracy", getAccuracy(db));
 router.get("/progressreport", getProgress(db));
 router.get("/responsedata", getResponses(db));
-router.get("/leaderboard", getLeaderboard(db));
 router.get("/dungeonquestion", getDungeonQuestion(db));
 router.put("/updungeon", putDungeon(db));
 router.put("/updungeonweb", putDungeonWeb(db));
@@ -36,6 +41,6 @@ router.get("/game/worldnames", getWorldNames(db));
 router.get("/game/worldquestions", getWorldQuestions(db));
 router.get("/game/dungeon", getGameDungeon(db));
 router.get("/game/storydata", getStoryData(db));
-router.get("/game/leaderboard", getLeaderBoard(db))
+router.get("/game/leaderboard", getLeaderBoard(db));
 
 module.exports = router;
