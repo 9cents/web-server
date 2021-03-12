@@ -99,6 +99,35 @@ getProgress = (db) => (req, res, next) => {
   });
 };
 
+// GET /leaderboard
+getLeaderboard = (db) => (req, res, next) => {
+  var queryText = `WITH min_level AS
+  (SELECT level.tower_id, MIN(level_id)-1 AS nums FROM level, tower
+  WHERE level.tower_id=tower.tower_id
+  GROUP BY level.tower_id
+  ORDER BY level.tower_id),
+
+  total_level AS
+  (SELECT player.player_name, SUM(progress.level_id-min_level.nums) AS total FROM player, progress, min_level
+  WHERE progress.tower_id = min_level.tower_id
+  AND player.player_id = progress.player_id
+  GROUP BY player.player_name)
+
+  SELECT player.player_name, COALESCE(total, 0) AS total FROM player
+  LEFT JOIN total_level ON player.player_name = total_level.player_name
+  ORDER BY total DESC NULLS LAST
+  LIMIT 10`
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows:", err.detail);
+      res.status(500).json({ message: err });
+    } else {
+      res.status(200).json({ message: "Leaderboard returned.", data: response.rows });
+    }
+  });
+};
+
 // GET /responsedata
 getResponses = (db) => (req, res, next) => {
   var queryText = `SELECT response_id, question_body, answer_body, correct
@@ -249,6 +278,7 @@ module.exports = {
   getAccuracy,
   getProgress,
   getResponses,
+  getLeaderboard,
   getDungeonQuestion,
   putDungeon,
   putDungeonWeb,
