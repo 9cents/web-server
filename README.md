@@ -1,5 +1,11 @@
 # backend
 ---
+## Pre-Requisites
+
+1. PostgreSQL database
+2. This project's [backend server](https://github.com/9cents/backend)
+
+---
 ## Installation
 
 `npm install`
@@ -22,7 +28,7 @@ To test server:
 `npm test`
 
 ---
-## Environment Variables Explained (`.env` file)
+<!-- ## Environment Variables Explained (`.env` file)
 
 | Variable   | Description                            |
 | ---------- | -------------------------------------- |
@@ -33,8 +39,15 @@ To test server:
 | PGDATABASE | PgSQL server database name             |
 | PGPORT     | Port number to connect to PgSQL server |
 
+--- -->
+## PostgreSQL Connection Configuration
+
+This project uses [node-postgres](https://node-postgres.com) to connect to the PostgreSQL database.
+
+The connection configuration can be found and changed in [src/database/db.config.js](src/database/db.config.js).
+
 ---
-## API Endpoints Examples
+## API Examples for CRUD of most resources
 
 For example, for table `player`, the endpoints and SQL queries are as such:
 
@@ -79,3 +92,5 @@ DELETE /player
 }
 DELETE FROM player WHERE player_name='Peter';
 ```
+---
+## Other API Endpoints can be found in [API Lists.md](API%20Lists.md) 
