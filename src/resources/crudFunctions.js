@@ -29,7 +29,14 @@ getFunc = (db, resource) => (req, res, next) => {
       console.log("Error getting rows:", err.detail);
       res.status(500).json({ message: err });
     } else {
-      res.status(200).json({ message: "Rows returned.", data: response.rows });
+      // filter out password field
+      var returnData = response.rows.map(val => {
+        if (val['password']) {
+          delete val["password"]
+        }
+        return val
+      })
+      res.status(200).json({ message: "Rows returned.", data: returnData });
     }
   });
 };
@@ -83,13 +90,22 @@ updateOne = (db, resource) => (req, res, next) => {
 
   // check if there are values to form SET clause
   var fieldPresent = false;
+  var passwordFlag = false
   resource.fields.forEach((val) => {
     if (valuesObject.hasOwnProperty(val)) {
+      // if attempting to change password here, reject
+      if (val === "password") {
+        passwordFlag = true
+      }
       queryText += `${val}=`;
       queryText += `'${valuesObject[val]}', `;
       fieldPresent = true;
     }
   });
+  if (passwordFlag) {
+    res.status(422).send("Not allowed to change password.");
+    return;
+  }
   if (!fieldPresent) {
     res.status(422).json({ message: `No values to set.` });
     return;
@@ -120,7 +136,7 @@ updateOne = (db, resource) => (req, res, next) => {
       res.status(500).json({ message: err });
       return;
     }
-    res.status(200).json({ message: "Row(s) updated.", data: response.rows });
+    res.status(200).json({ message: `${response.rowCount} row(s) updated.`, data: response.rows });
   });
 };
 

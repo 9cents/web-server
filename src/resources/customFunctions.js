@@ -30,7 +30,7 @@ getAccuracy = (db) => (req, res, next) => {
   });
 };
 
-// GET /progress
+// GET /progressreport
 getProgress = (db) => (req, res, next) => {
   const query = {
     player_id: req.query.player_id,
@@ -68,7 +68,7 @@ getProgress = (db) => (req, res, next) => {
     AND question.level_id = level.level_id
     AND answer.correct = True
     AND player_id = ` + query.player_id +
-    `GROUP BY level.tower_id),
+    ` GROUP BY level.tower_id),
       
     num_total AS
     (SELECT level.tower_id, CAST(COUNT(correct) as FLOAT) AS nums
@@ -77,7 +77,7 @@ getProgress = (db) => (req, res, next) => {
     AND answer.question_id = question.question_id
     AND question.level_id = level.level_id
     AND player_id = ` + query.player_id +
-    `GROUP BY level.tower_id),
+    ` GROUP BY level.tower_id),
       
     percentage AS
     (SELECT num_correct.tower_id, COALESCE(num_correct.nums/num_total.nums*100, 0) AS accuracy
