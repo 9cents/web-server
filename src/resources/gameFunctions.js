@@ -15,6 +15,31 @@ getWorldNames = (db) => (req, res, next) => {
   });
 };
 
+// GET /game/towernames
+getTowerNames = (db) => (req, res, next) => {
+  const queryText = `SELECT * FROM tower ORDER BY tower_id;`;
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error gettings rows: ", err.detail);
+      res.status(500).json({ message: err });
+    } else {
+      worldList = response.rows.map((val) => {
+        return val["world_id"];
+      });
+      worldList = [...new Set(worldList)];
+      towerList = worldList.map((world) => {
+        return response.rows
+          .filter((row) => {
+            return row["world_id"] === world;
+          })
+          .map((val) => val["tower_name"]);
+      });
+      res.status(200).json(towerList);
+    }
+  });
+};
+
 //GET /game/worldquestions
 getWorldQuestions = (db) => (req, res, next) => {
   const queryText = `SELECT world.world_id, question.question_body FROM world 
@@ -47,61 +72,79 @@ getWorldQuestions = (db) => (req, res, next) => {
   });
 };
 
-// GET /game/dungeon
-getGameDungeon = (db) => (req, res, next) => {
-  const query = req.query;
+// GET /game/storydata
+getStoryData = (db) => (req, res, next) => {
+  const params = req.query;
+  const tower_name = params["tower_name"];
+  const player_name = params["player_name"];
 
-  const player_name = query["player_name"];
+  if (!tower_name || !player_name) {
+    res.status(422).json({ message: "Missing field in request." });
+    return;
+  }
 
-  //
-  var queryText = `SELECT player_name, 
-  q1.question_body as question1,
-  q2.question_body as question2,
-  q3.question_body as question3,
-  q4.question_body as question4,
-  q5.question_body as question5
-  FROM dungeon 
-  JOIN question as q1 ON (dungeon.question_1 = q1.question_id)
-  JOIN question as q2 ON (dungeon.question_2 = q2.question_id)
-  JOIN question as q3 ON (dungeon.question_3 = q3.question_id)
-  JOIN question as q4 ON (dungeon.question_4 = q4.question_id)
-  JOIN question as q5 ON (dungeon.question_5 = q5.question_id)
-  WHERE player_name = '${player_name}'
- `;
+  const queryText = `SELECT DISTINCT question_body, answer_body, correct
+  FROM progress,tower, player, question, answer
+  WHERE progress.player_id = player.player_id
+  AND progress.level_id = question.level_id
+  AND question.question_id = answer.question_id
+  AND progress.tower_id = tower.tower_id
+  AND tower.tower_name = '${tower_name}'
+  AND player_name = '${player_name}';`;
 
   db.query(queryText, (err, response) => {
     if (err) {
-      console.log("Error getting rows:", err.detail);
+      console.log("Error getting rows: ", err.detail);
       res.status(500).json({ message: err });
     } else {
-      // format into questionList
-      // ["question1", "question2", "question3", "question4", "question5"]
-      questions = response.rows[0];
-      questionList = [
-        "question1",
-        "question2",
-        "question3",
-        "question4",
-        "question5",
-      ].map((val) => {
-        if (questions) {
-          return questions[val] || "";
-        } else return "";
+      questionList = response.rows.map((val) => val["question_body"]);
+      questionList = [...new Set(questionList)];
+
+      temp = questionList.map((qns) => {
+        var correctIndex = -1;
+        const answers = response.rows
+          .filter((row) => row["question_body"] === qns)
+          .map((val, idx) => {
+            if (val["correct"]) {
+              correctIndex = idx;
+            }
+            return val["answer_body"];
+          });
+        return {
+          question_body: qns,
+          answers: answers,
+          correct: correctIndex,
+        };
       });
-      res.status(200).json(questionList);
+      res.status(200).json(temp);
     }
   });
 };
 
-// GET /game/storydata
-getStoryData = (db) => (req, res, next) => {
-  queryText = `SELECT question_body, answer_body, correct 
-  FROM question
-  JOIN answer ON question.question_id = answer.question_id`;
+//GET /game/challengedata
+getChallengeData = (db) => (req, res, next) => {
+  const params = req.query;
+  const player_name = params.player_name;
+
+  if (!player_name) {
+    res.status(422).json({ message: "Missing player name" });
+    return;
+  }
+
+  queryText = `SELECT player_name, question_body, answer_body, correct
+  FROM (SELECT player_name,
+    unnest(array['question_1', 'question_2', 'question_3', 'question_4', 'question_5']) AS "Values",
+    unnest(array[question_1, question_2, question_3, question_4, question_5]) AS "question_id"
+  FROM dungeon
+  ORDER BY player_name) AS d, question, answer
+  WHERE d.question_id = question.question_id
+  AND question.question_id = answer.question_id
+  AND d.player_name = '${player_name}'
+  ORDER BY player_name, question_body`;
 
   db.query(queryText, (err, response) => {
     if (err) {
-      console.log("Error getting rows:", err.detail);
+      console.log("Error getting rows: ", err.detail);
       res.status(500).json({ message: err });
     } else {
       questionList = response.rows.map((val) => val["question_body"]);
@@ -165,10 +208,45 @@ getLeaderBoard = (db) => (req, res, next) => {
   });
 };
 
+// PUT /game/dungeon
+putGameDungeon = (db) => (req, res, next) => {
+  const params = req.query;
+  const player_name = params.player_name;
+
+  if (!player_name) {
+    res.status(422).json({ message: "Missing player_name field" });
+  }
+
+  const valuesObject = [...req.body];
+
+  const queryText = `UPDATE dungeon
+  SET 
+  question_1 = (SELECT question_id FROM question WHERE question_body = '${valuesObject[0]}'), 
+  question_2 = (SELECT question_id FROM question WHERE question_body = '${valuesObject[1]}'), 
+  question_3 = (SELECT question_id FROM question WHERE question_body = '${valuesObject[2]}'),
+  question_4 = (SELECT question_id FROM question WHERE question_body = '${valuesObject[3]}'),
+  question_5 = (SELECT question_id FROM question WHERE question_body = '${valuesObject[4]}')
+  WHERE player_name = '${player_name}';`;
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows:", err.detail);
+      res.status(500).json({ message: err });
+    } else {
+      res.status(200).json({
+        message: `${response.rowCount} row(s) updated.`,
+        data: response.rows,
+      });
+    }
+  });
+};
+
 module.exports = {
   getWorldNames,
+  getTowerNames,
   getWorldQuestions,
-  getGameDungeon,
   getStoryData,
+  getChallengeData,
   getLeaderBoard,
+  putGameDungeon,
 };

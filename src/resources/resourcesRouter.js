@@ -16,11 +16,13 @@ const {
 } = require("./customFunctions");
 
 const {
-  getGameDungeon,
   getWorldNames,
   getWorldQuestions,
   getStoryData,
+  getChallengeData,
   getLeaderBoard,
+  putGameDungeon,
+  getTowerNames,
 } = require("./gameFunctions");
 
 resourcesSchemas.forEach((resource) => {
@@ -39,8 +41,10 @@ router.put("/updungeonlockweb", putDungeonLockWeb(db));
 
 router.get("/game/worldnames", getWorldNames(db));
 router.get("/game/worldquestions", getWorldQuestions(db));
-router.get("/game/dungeon", getGameDungeon(db));
+router.get("/game/towernames", getTowerNames(db));
 router.get("/game/storydata", getStoryData(db));
+router.get("/game/challengedata", getChallengeData(db));
 router.get("/game/leaderboard", getLeaderBoard(db));
+router.put("/game/dungeon", putGameDungeon(db));
 
 module.exports = router;
