@@ -83,14 +83,21 @@ getStoryData = (db) => (req, res, next) => {
     return;
   }
 
-  const queryText = `SELECT DISTINCT question_body, answer_body, correct
-  FROM progress,tower, player, question, answer
+  const queryText = `WITH current_level AS
+  (SELECT DISTINCT progress.level_id AS level FROM progress, tower, level, player
   WHERE progress.player_id = player.player_id
-  AND progress.level_id = question.level_id
-  AND question.question_id = answer.question_id
   AND progress.tower_id = tower.tower_id
   AND tower.tower_name = '${tower_name}'
-  AND player_name = '${player_name}';`;
+  AND player.player_name = '${player_name}'),
+  min_level AS
+  (SELECT MIN(level.level_id) AS level FROM tower, level
+  WHERE tower.tower_id = level.level_id
+  AND tower.tower_name = '${tower_name}'),
+  combined AS
+  (SELECT * FROM current_level UNION SELECT * FROM min_level)
+  SELECT question_body, answer_body, correct FROM question, answer, combined
+  WHERE question.question_id = answer.question_id
+  AND question.level_id = (SELECT MAX(level) FROM combined)`;
 
   db.query(queryText, (err, response) => {
     if (err) {
