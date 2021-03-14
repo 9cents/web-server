@@ -27,8 +27,11 @@ const loginHandler = (db) => (req, res) => {
             if (!isMatch) {
               res.status(401).json({ message: "Passwords do not match" });
             } else {
-              res.status(200).json({ message: "Passwords match" });
-              // Send JWT (the game doesn't need I think)
+              toReturn = response.rows[0];
+              delete toReturn.password;
+              res
+                .status(200)
+                .json({ message: "Passwords match", data: toReturn });
             }
           }
         );
