@@ -65,11 +65,11 @@ describe('Web Interface', function() {
 
         it('Return progress', done => {
             chai.request(server)
-                .get('/progress?player_id=' + player.player_id)
+                .get('/progressreport?player_id=' + player.player_id)
                 .end((err, res) => {
                     // console.error(res.body);
                     res.should.have.status(200);
-                    expect(res.body.message).to.equal("Rows returned.");
+                    expect(res.body.message).to.equal("Progress returned.");
                     done();
                 })
         });
@@ -222,7 +222,7 @@ describe('Web Interface', function() {
                 .end((err, res) => {
                     // console.error(res.body);
                     res.should.have.status(200);
-                    expect(res.body.message).to.equal("Row(s) updated.");
+                    expect(res.body.message).to.equal("1 row(s) updated.");
                     done();
                 })
         });
@@ -255,7 +255,7 @@ describe('Web Interface', function() {
                                                         })
                                                         .end((err, responsesss) => {
                                                             responsesss.should.have.status(200);
-                                                            expect(responsesss.body.message).to.equal("Row(s) updated.");
+                                                            expect(responsesss.body.message).to.equal("1 row(s) updated.");
                                                             done();
                                                         })
                                                 })

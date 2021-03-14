@@ -185,12 +185,11 @@ getLeaderBoard = (db) => (req, res, next) => {
     total_level AS
     (SELECT player.player_name, SUM(progress.level_id-min_level.nums) AS total FROM player, progress, min_level
     WHERE progress.tower_id = min_level.tower_id
-    AND player.player_id = progress.player_id` +
-    (player_name ? ` AND player.player_name = '${player_name}' ` : ` `) +
-    `GROUP BY player.player_name)
+    AND player.player_id = progress.player_id GROUP BY player.player_name)
     SELECT player.player_name, COALESCE(total, 0) AS total FROM player
-    LEFT JOIN total_level ON player.player_name = total_level.player_name
-    ORDER BY total DESC NULLS LAST` +
+    LEFT JOIN total_level ON player.player_name = total_level.player_name` +
+    (player_name ? ` WHERE player.player_name = '${player_name}' ` : ` `) +
+    `ORDER BY total DESC NULLS LAST` +
     (player_name ? ` LIMIT 1` : ` LIMIT 10`);
 
   db.query(queryText, (err, response) => {
