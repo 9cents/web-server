@@ -103,16 +103,6 @@ describe('Game', function() {
                 })
         });
 
-        it('Get all dungeon questions', done => {
-            chai.request(server)
-                .get('/game/challengedata?player_name=' + player.player_name)
-                .end((err, res) => {
-                    // console.debug(res.body)
-                    res.should.have.status(200);
-                    done();
-                })
-        });
-
         it('Get all leaderboard entries', done => {
             chai.request(server)
                 .get('/game/leaderboard')
@@ -123,7 +113,7 @@ describe('Game', function() {
                 })
         });
 
-        it('Get single leaderboard entry', done => {
+        it('Get a single leaderboard entry', done => {
             chai.request(server)
                 .get('/game/leaderboard?player_name=' + player.player_name)
                 .end((err, res) => {
@@ -142,7 +132,7 @@ describe('Game', function() {
             player_name: "Test Player"
         };
 
-        it('Modify dungeon questions', done => {
+        it('Update dungeon questions', done => {
             chai.request(server)
                 .put('/game/dungeon?player_name=' + tplayer.player_name)
                 .set('content-type', 'application/json')
