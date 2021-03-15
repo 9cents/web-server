@@ -183,8 +183,7 @@ getLeaderBoard = (db) => (req, res, next) => {
   const params = req.query;
   const player_name = params["player_name"];
 
-  queryText =
-    `WITH min_level AS
+  queryText = `WITH min_level AS
     (SELECT level.tower_id, MIN(level_id)-1 AS nums FROM level, tower
     WHERE level.tower_id=tower.tower_id
     GROUP BY level.tower_id
@@ -194,22 +193,23 @@ getLeaderBoard = (db) => (req, res, next) => {
     WHERE progress.tower_id = min_level.tower_id
     AND player.player_id = progress.player_id GROUP BY player.player_name)
     SELECT player.player_name, COALESCE(total, 0) AS total FROM player
-    LEFT JOIN total_level ON player.player_name = total_level.player_name` +
-    (player_name ? ` WHERE player.player_name = '${player_name}' ` : ` `) +
-    `ORDER BY total DESC NULLS LAST` +
-    (player_name ? ` LIMIT 1` : ` LIMIT 10`);
+    LEFT JOIN total_level ON player.player_name = total_level.player_name
+    ORDER BY total DESC NULLS LAST`;
 
   db.query(queryText, (err, response) => {
     if (err) {
       console.log("error getting rows: ", err.detail);
       res.status(500).json({ message: err });
     } else {
-      const data = response.rows
-        .filter((val) => {
-          return val["player_name"] != null;
-        })
-        .map((val) => [val.player_name, val.total]);
-      res.status(200).json(player_name ? data[0] : data);
+      var targetPlayerData = [];
+      const data = response.rows.map((val, idx) => {
+        if (player_name && val.player_name === player_name) {
+          targetPlayerData = [idx + 1, val.total];
+        }
+        return [val.player_name, val.total];
+      });
+
+      res.status(200).json(player_name ? targetPlayerData : data);
     }
   });
 };
