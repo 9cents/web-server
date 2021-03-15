@@ -27,7 +27,7 @@ const questions = {
 
 const answers = {
   name: "answer",
-  fields: ["answer_body", "correct", "question_id", "answer_name"],
+  fields: ["answer_body", "correct", "question_id"],
   primaryKey: "answer_id",
 };
 
