@@ -84,7 +84,7 @@ getStoryData = (db) => (req, res, next) => {
   }
 
   const queryText = `WITH current_level AS
-  (SELECT DISTINCT progress.level_id AS level FROM progress, tower, level, player
+  (SELECT DISTINCT progress.level_id AS level FROM progress, tower, player
   WHERE progress.player_id = player.player_id
   AND progress.tower_id = tower.tower_id
   AND tower.tower_name = '${tower_name}'
@@ -94,10 +94,15 @@ getStoryData = (db) => (req, res, next) => {
   WHERE tower.tower_id = level.level_id
   AND tower.tower_name = '${tower_name}'),
   combined AS
-  (SELECT * FROM current_level UNION SELECT * FROM min_level)
-  SELECT question_body, answer_body, correct FROM question, answer, combined
+  (SELECT * FROM current_level UNION SELECT * FROM min_level),
+  questions AS
+  (SELECT question_id FROM question
+  WHERE level_id = (SELECT MAX(level) FROM combined)
+  ORDER BY RANDOM()
+  LIMIT 5)
+  SELECT question_body, answer_body, correct FROM question, answer
   WHERE question.question_id = answer.question_id
-  AND question.level_id = (SELECT MAX(level) FROM combined)`;
+  AND question.question_id IN (SELECT * FROM questions)`;
 
   db.query(queryText, (err, response) => {
     if (err) {
@@ -148,6 +153,48 @@ getChallengeData = (db) => (req, res, next) => {
   AND question.question_id = answer.question_id
   AND d.player_name = '${player_name}'
   ORDER BY player_name, question_body`;
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows: ", err.detail);
+      res.status(500).json({ message: err });
+    } else {
+      questionList = response.rows.map((val) => val["question_body"]);
+      questionList = [...new Set(questionList)];
+
+      temp = questionList.map((qns) => {
+        var correctIndex = -1;
+        const answers = response.rows
+          .filter((row) => row["question_body"] === qns)
+          .map((val, idx) => {
+            if (val["correct"]) {
+              correctIndex = idx;
+            }
+            return val["answer_body"];
+          });
+        return {
+          question_body: qns,
+          answers: answers,
+          correct: correctIndex,
+        };
+      });
+      res.status(200).json(temp);
+    }
+  });
+};
+
+//GET /game/instructordungeon
+getInstructorDungeon = (db) => (req, res, next) => {
+  queryText = `SELECT instructor_name, question_body, answer_body, correct
+  FROM (SELECT instructor_name,
+    unnest(array['question_1', 'question_2', 'question_3', 'question_4', 'question_5']) AS "Values",
+    unnest(array[question_1, question_2, question_3, question_4, question_5]) AS "question_id"
+  FROM instructor
+  ORDER BY instructor_name) AS d, question, answer
+  WHERE d.question_id = question.question_id
+  AND question.question_id = answer.question_id
+  AND d.instructor_name = 'Instructor'
+  ORDER BY question_body`;
 
   db.query(queryText, (err, response) => {
     if (err) {
@@ -247,12 +294,133 @@ putGameDungeon = (db) => (req, res, next) => {
   });
 };
 
+// PUT /game/response
+putGameResponse = (db) => (req, res, next) => {
+  const params = req.query;
+  const player_name = params.player_name;
+  const answer_body = params.answer_body;
+
+  if (!player_name) {
+    res.status(422).json({ message: "Missing player_name field" });
+  }
+
+  if (!answer_body) {
+    res.status(422).json({ message: "Missing answer_body field" });
+  }
+
+  const queryText = `INSERT INTO response(player_id, answer_id)
+  SELECT (SELECT player_id FROM player WHERE player_name='${player_name}'),
+  (SELECT answer_id FROM answer WHERE answer_body='${answer_body}')`;
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows:", err.detail);
+      res.status(500).json({ message: err });
+    } else {
+      res.status(200).json({
+        message: `Response inserted.`,
+        data: response.rows,
+      });
+    }
+  });
+};
+
+// PUT /game/incrementlevel
+putIncrementLevel = (db) => (req, res, next) => {
+  const params = req.query;
+  const player_name = params.player_name;
+  const tower_name = params.tower_name;
+
+  if (!player_name) {
+    res.status(422).json({ message: "Missing player_name field" });
+  }
+
+  if (!tower_name) {
+    res.status(422).json({ message: "Missing tower_name field" });
+  }
+
+  const queryText = `UPDATE progress
+  SET level_id = level_id + 1
+  WHERE tower_id IN (SELECT tower_id FROM tower WHERE tower_name = '${tower_name}')
+  AND player_id IN (SELECT player_id FROM player WHERE player_name = '${player_name}')
+  AND EXISTS (SELECT 1 FROM level, tower 
+        WHERE tower.tower_id = level.tower_id
+        AND tower_name = '${tower_name}'
+        AND level_id = progress.level_id + 1);
+  INSERT INTO progress
+  SELECT (SELECT player_id FROM player WHERE player_name = '${player_name}'), 
+  (SELECT tower_id FROM tower WHERE tower_name = '${tower_name}'), 
+  (SELECT MIN(level_id)+1 FROM level WHERE tower_id = 1)
+  WHERE NOT EXISTS (SELECT 1 FROM progress 
+            WHERE tower_id IN (SELECT tower_id FROM tower WHERE tower_name = '${tower_name}')
+            AND player_id IN (SELECT player_id FROM player WHERE player_name = '${player_name}'));`;
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows:", err.detail);
+      res.status(500).json({ message: err });
+    } else {
+      res.status(200).json({
+        message: `Level incremented.`,
+        data: response.rows,
+      });
+    }
+  });
+};
+
+// PUT /game/decrementlevel
+putDecrementLevel = (db) => (req, res, next) => {
+  const params = req.query;
+  const player_name = params.player_name;
+  const tower_name = params.tower_name;
+
+  if (!player_name) {
+    res.status(422).json({ message: "Missing player_name field" });
+  }
+
+  if (!tower_name) {
+    res.status(422).json({ message: "Missing tower_name field" });
+  }
+
+  const queryText = `UPDATE progress
+  SET level_id = level_id - 1
+  WHERE tower_id IN (SELECT tower_id FROM tower WHERE tower_name = '${tower_name}')
+  AND player_id IN (SELECT player_id FROM player WHERE player_name = '${player_name}')
+  AND EXISTS (SELECT 1 FROM level, tower 
+        WHERE tower.tower_id = level.tower_id
+        AND tower_name = '${tower_name}'
+        AND level_id = progress.level_id - 1);
+  INSERT INTO progress
+  SELECT (SELECT player_id FROM player WHERE player_name = '${player_name}'), 
+  (SELECT tower_id FROM tower WHERE tower_name = '${tower_name}'), 
+  (SELECT MIN(level_id) FROM level WHERE tower_id = 1)
+  WHERE NOT EXISTS (SELECT 1 FROM progress 
+            WHERE tower_id IN (SELECT tower_id FROM tower WHERE tower_name = '${tower_name}')
+            AND player_id IN (SELECT player_id FROM player WHERE player_name = '${player_name}'));`;
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows:", err.detail);
+      res.status(500).json({ message: err });
+    } else {
+      res.status(200).json({
+        message: `Level decremented.`,
+        data: response.rows,
+      });
+    }
+  });
+};
+
 module.exports = {
   getWorldNames,
   getTowerNames,
   getWorldQuestions,
   getStoryData,
   getChallengeData,
+  getInstructorDungeon,
   getLeaderBoard,
   putGameDungeon,
+  putGameResponse,
+  putIncrementLevel,
+  putDecrementLevel
 };
