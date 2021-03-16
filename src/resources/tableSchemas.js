@@ -86,5 +86,5 @@ module.exports = [
   responses,
   instructors,
   dungeons,
-  // progress,
+  progress,
 ];

@@ -100,8 +100,9 @@ getStoryData = (db) => (req, res, next) => {
   WHERE level_id = (SELECT MAX(level) FROM combined)
   ORDER BY RANDOM()
   LIMIT 5)
-  SELECT question_body, answer_body, correct FROM question, answer
-  WHERE question.question_id = answer.question_id
+  SELECT level_name, question_body, answer_body, correct FROM level, question, answer
+  WHERE level.level_id = question.level_id
+  AND question.question_id = answer.question_id
   AND question.question_id IN (SELECT * FROM questions)`;
 
   db.query(queryText, (err, response) => {
@@ -109,10 +110,10 @@ getStoryData = (db) => (req, res, next) => {
       console.log("Error getting rows: ", err.detail);
       res.status(500).json({ message: err });
     } else {
-      questionList = response.rows.map((val) => val["question_body"]);
+      var questionList = response.rows.map((val) => val["question_body"]);
       questionList = [...new Set(questionList)];
 
-      temp = questionList.map((qns) => {
+      const questionAnswersData = questionList.map((qns) => {
         var correctIndex = -1;
         const answers = response.rows
           .filter((row) => row["question_body"] === qns)
@@ -128,7 +129,13 @@ getStoryData = (db) => (req, res, next) => {
           correct: correctIndex,
         };
       });
-      res.status(200).json(temp);
+
+      const toReturn = {
+        level_name: response.rows[0].level_name,
+        data: questionAnswersData,
+      };
+
+      res.status(200).json(toReturn);
     }
   });
 };
@@ -185,10 +192,11 @@ getChallengeData = (db) => (req, res, next) => {
 
 //GET /game/instructordungeon
 getInstructorDungeon = (db) => (req, res, next) => {
-  queryText = `SELECT instructor_name, question_body, answer_body, correct
+  queryText = `SELECT instructor_name, question_body, answer_body, correct, lock
   FROM (SELECT instructor_name,
     unnest(array['question_1', 'question_2', 'question_3', 'question_4', 'question_5']) AS "Values",
-    unnest(array[question_1, question_2, question_3, question_4, question_5]) AS "question_id"
+    unnest(array[question_1, question_2, question_3, question_4, question_5]) AS "question_id",
+    lock
   FROM instructor
   ORDER BY instructor_name) AS d, question, answer
   WHERE d.question_id = question.question_id
@@ -201,10 +209,10 @@ getInstructorDungeon = (db) => (req, res, next) => {
       console.log("Error getting rows: ", err.detail);
       res.status(500).json({ message: err });
     } else {
-      questionList = response.rows.map((val) => val["question_body"]);
+      var questionList = response.rows.map((val) => val["question_body"]);
       questionList = [...new Set(questionList)];
 
-      temp = questionList.map((qns) => {
+      const questionAnswersData = questionList.map((qns) => {
         var correctIndex = -1;
         const answers = response.rows
           .filter((row) => row["question_body"] === qns)
@@ -220,7 +228,12 @@ getInstructorDungeon = (db) => (req, res, next) => {
           correct: correctIndex,
         };
       });
-      res.status(200).json(temp);
+
+      const toReturn = {
+        lock: response.rows[0].lock,
+        data: questionAnswersData,
+      };
+      res.status(200).json(toReturn);
     }
   });
 };
@@ -268,6 +281,7 @@ putGameDungeon = (db) => (req, res, next) => {
 
   if (!player_name) {
     res.status(422).json({ message: "Missing player_name field" });
+    return
   }
 
   const valuesObject = [...req.body];
@@ -298,19 +312,29 @@ putGameDungeon = (db) => (req, res, next) => {
 putGameResponse = (db) => (req, res, next) => {
   const params = req.query;
   const player_name = params.player_name;
-  const answer_body = params.answer_body;
+
+  const question_body = req.body.question_body
+  const answer_body = req.body.answer_body;
 
   if (!player_name) {
     res.status(422).json({ message: "Missing player_name field" });
+    return
   }
-
+  if (!question_body) {
+    res.status(422).json({ message: "Missing question_body field" });
+    return
+  }
   if (!answer_body) {
     res.status(422).json({ message: "Missing answer_body field" });
+    return
   }
 
   const queryText = `INSERT INTO response(player_id, answer_id)
   SELECT (SELECT player_id FROM player WHERE player_name='${player_name}'),
-  (SELECT answer_id FROM answer WHERE answer_body='${answer_body}')`;
+  (SELECT answer_id FROM answer, question 
+    WHERE answer.answer_body='${answer_body}'
+    AND question.question_body='${question_body}'
+    AND question.question_id = answer.question_id)`;
 
   db.query(queryText, (err, response) => {
     if (err) {
@@ -325,7 +349,7 @@ putGameResponse = (db) => (req, res, next) => {
   });
 };
 
-// PUT /game/incrementlevel
+// PUT /game/increment
 putIncrementLevel = (db) => (req, res, next) => {
   const params = req.query;
   const player_name = params.player_name;
@@ -333,10 +357,12 @@ putIncrementLevel = (db) => (req, res, next) => {
 
   if (!player_name) {
     res.status(422).json({ message: "Missing player_name field" });
+    return
   }
 
   if (!tower_name) {
     res.status(422).json({ message: "Missing tower_name field" });
+    return
   }
 
   const queryText = `UPDATE progress
@@ -368,7 +394,7 @@ putIncrementLevel = (db) => (req, res, next) => {
   });
 };
 
-// PUT /game/decrementlevel
+// PUT /game/decrement
 putDecrementLevel = (db) => (req, res, next) => {
   const params = req.query;
   const player_name = params.player_name;
@@ -376,10 +402,12 @@ putDecrementLevel = (db) => (req, res, next) => {
 
   if (!player_name) {
     res.status(422).json({ message: "Missing player_name field" });
+    return
   }
 
   if (!tower_name) {
     res.status(422).json({ message: "Missing tower_name field" });
+    return
   }
 
   const queryText = `UPDATE progress
@@ -422,5 +450,5 @@ module.exports = {
   putGameDungeon,
   putGameResponse,
   putIncrementLevel,
-  putDecrementLevel
+  putDecrementLevel,
 };
