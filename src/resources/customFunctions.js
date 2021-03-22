@@ -88,7 +88,8 @@ getProgress = (db) => (req, res, next) => {
     SELECT tower.tower_name, COALESCE(current, 0) AS level, COALESCE(nums, 0) AS total, COALESCE(accuracy, 0) AS accuracy FROM tower 
     LEFT JOIN num_level ON tower.tower_id = num_level.tower_id
     LEFT JOIN level_progress ON tower.tower_id = level_progress.tower_id
-    LEFT JOIN percentage ON tower.tower_id = percentage.tower_id`;
+    LEFT JOIN percentage ON tower.tower_id = percentage.tower_id
+    ORDER BY tower.tower_id`;
 
   db.query(queryText, (err, response) => {
     if (err) {
