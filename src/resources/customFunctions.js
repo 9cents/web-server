@@ -18,6 +18,7 @@ getAccuracy = (db) => (req, res, next) => {
   COALESCE(num_correct.nums/num_total.nums*100, 0) AS percentage\
   FROM num_correct, num_total, player\
   WHERE num_correct.player_id = player.player_id\
+  AND num_total.player_id = player.player_id\
   AND player.player_id = ` + query.player_id;
 
   db.query(queryText, (err, response) => {
