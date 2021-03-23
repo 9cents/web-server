@@ -13,7 +13,7 @@ const {
   putDungeonWeb,
   putDungeonLockWeb,
   getResponses,
-} = require("./customFunctions");
+} = require("./webappFunctions");
 
 resourcesSchemas.forEach((resource) => {
   router.get(`/${resource.name}`, getFunc(db, resource));
