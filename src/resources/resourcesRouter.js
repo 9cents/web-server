@@ -24,9 +24,5 @@ resourcesSchemas.forEach((resource) => {
 router.get("/accuracy", getAccuracy(db));
 router.get("/progressreport", getProgress(db));
 router.get("/responsedata", getResponses(db));
-router.get("/dungeonquestion", getDungeonQuestion(db));
-router.put("/updungeon", putDungeon(db));
-router.put("/updungeonweb", putDungeonWeb(db));
-router.put("/updungeonlockweb", putDungeonLockWeb(db));
 
 module.exports = router;

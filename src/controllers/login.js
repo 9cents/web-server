@@ -1,6 +1,14 @@
 const bcrypt = require("bcrypt-nodejs");
 const jwt = require("jsonwebtoken");
+/** @module Webapp_Login*/
 
+/**
+ * @name loginHandler
+ * @description Returns middleware function that authenticates an instructor's credentials and sends success/failure as response.
+ * @function
+ * @param {object} db - The postpresql db instance
+ * @return {function} - The middleware function
+ */
 const loginHandlerWeb = (db) => (req, res) => {
   const query = {
     name: req.body.name,

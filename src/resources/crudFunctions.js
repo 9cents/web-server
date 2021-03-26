@@ -1,5 +1,14 @@
 // GET /resource
-getFunc = (db, resource) => (req, res, next) => {
+/** @module CreateReadUpdateDelete_Functions */
+/**
+ * @name getFunc
+ * @description Returns middleware function that performs an SQL SELECT * query based on the specified resource and params.
+ * @function
+ * @param {object} db - The postpresql db instance
+ * @param {object} resource - The resource
+ * @return {function} - The middleware function
+ */
+ getFunc = (db, resource) => (req, res, next) => {
   const query = req.query;
 
   var queryText = `SELECT * FROM public.${resource.name} `;
@@ -43,6 +52,14 @@ getFunc = (db, resource) => (req, res, next) => {
 };
 
 // to insert one, used with PUT
+/**
+ * @name insertOne
+ * @description Returns middleware function that performs an SQL INSERT INTO query based on the specified resource and params.
+ * @function
+ * @param {object} db - The postpresql db instance
+ * @param {object} resource - The resource
+ * @return {function} - The middleware function
+ */
 insertOne = (db, resource) => (req, res, next) => {
   // prevent creating player and instructor through this, because password needs to be bcrypted
   if (resource.name === "player" || resource.name === "instructor") {
@@ -81,6 +98,14 @@ insertOne = (db, resource) => (req, res, next) => {
 };
 
 // to update one, used with PUT
+/**
+ * @name updateOne
+ * @description Returns middleware function that performs an SQL UPDATE query based on the specified resource and params.
+ * @function
+ * @param {object} db - The postpresql db instance
+ * @param {object} resource - The resource
+ * @return {function} - The middleware function
+ */
 updateOne = (db, resource) => (req, res, next) => {
   const valuesObject = { ...req.body };
   const conditions = valuesObject.conditions;
@@ -145,6 +170,14 @@ updateOne = (db, resource) => (req, res, next) => {
 };
 
 // PUT /resource
+/**
+ * @name putFunc
+ * @description Returns middleware function that performs {@link updateOne} or {@link insertOne} depending on whether conditions are found in the request.
+ * @function
+ * @param {object} db - The postpresql db instance
+ * @param {object} resource - The resource
+ * @return {function} - The middleware function
+ */
 putFunc = (db, resource) => (req, res, next) => {
   if (req.body.conditions) {
     updateOne(db, resource)(req, res, next);
@@ -154,6 +187,14 @@ putFunc = (db, resource) => (req, res, next) => {
 };
 
 // DELETE /resource
+/**
+ * @name deleteFunc
+ * @description Returns middleware function that performs an SQL DELETE FROM query based on the specified resource and params.
+ * @function
+ * @param {object} db - The postpresql db instance
+ * @param {object} resource - The resource
+ * @return {function} - The middleware function
+ */
 deleteFunc = (db, resource) => (req, res, next) => {
   const valuesObject = req.body;
 

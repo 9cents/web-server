@@ -1,4 +1,13 @@
+/** @module Webapp_Functions */
+
 // GET /accuracy
+/**
+ * @name getAccuracy
+ * @description Returns middleware that retreives a specified player's accuracy in game and sends as response.
+ * @function
+ * @param {object} db - The postpresql db instance
+ * @return {function} - The middleware function
+ */
 getAccuracy = (db) => (req, res, next) => {
   const query = {
     player_id: req.query.player_id,
@@ -26,12 +35,21 @@ getAccuracy = (db) => (req, res, next) => {
       console.log("Error getting rows:", err.detail);
       res.status(500).json({ message: err });
     } else {
-      res.status(200).json({ message: "Accuracy returned.", data: response.rows });
+      res
+        .status(200)
+        .json({ message: "Accuracy returned.", data: response.rows });
     }
   });
 };
 
 // GET /progressreport
+/**
+ * @name getProgress
+ * @description Returns middleware that retreives a specified player's progress in game and sends as response.
+ * @function
+ * @param {object} db - The postpresql db instance
+ * @return {function} - The middleware function
+ */
 getProgress = (db) => (req, res, next) => {
   const query = {
     player_id: req.query.player_id,
@@ -47,7 +65,8 @@ getProgress = (db) => (req, res, next) => {
     current_progress AS
     (SELECT tower_id, level_id AS current FROM player, progress
     WHERE progress.player_id = player.player_id
-    AND player.player_id = ` + query.player_id +
+    AND player.player_id = ` +
+    query.player_id +
     `),
 
     min_level AS
@@ -68,7 +87,8 @@ getProgress = (db) => (req, res, next) => {
     AND answer.question_id = question.question_id
     AND question.level_id = level.level_id
     AND answer.correct = True
-    AND player_id = ` + query.player_id +
+    AND player_id = ` +
+    query.player_id +
     ` GROUP BY level.tower_id),
       
     num_total AS
@@ -77,7 +97,8 @@ getProgress = (db) => (req, res, next) => {
     WHERE response.answer_id = answer.answer_id
     AND answer.question_id = question.question_id
     AND question.level_id = level.level_id
-    AND player_id = ` + query.player_id +
+    AND player_id = ` +
+    query.player_id +
     ` GROUP BY level.tower_id),
       
     percentage AS
@@ -96,153 +117,37 @@ getProgress = (db) => (req, res, next) => {
       console.log("Error getting rows:", err.detail);
       res.status(500).json({ message: err });
     } else {
-      res.status(200).json({ message: "Progress returned.", data: response.rows });
+      res
+        .status(200)
+        .json({ message: "Progress returned.", data: response.rows });
     }
   });
 };
 
 // GET /responsedata
+/**
+ * @name getAccuracy
+ * @description Returns middleware that retreives a specified player's responses in game and sends as response.
+ * @function
+ * @param {object} db - The postpresql db instance
+ * @return {function} - The middleware function
+ */
 getResponses = (db) => (req, res, next) => {
   var queryText = `SELECT response_id, question_body, answer_body, correct
   FROM response, question, answer
   WHERE response.answer_id = answer.answer_id
   AND answer.question_id = question.question_id
   AND response.player_id = ${req.query.player_id}
-  ORDER BY response_id DESC`
+  ORDER BY response_id DESC`;
 
   db.query(queryText, (err, response) => {
     if (err) {
       console.log("Error getting rows:", err.detail);
       res.status(500).json({ message: err });
     } else {
-      res.status(200).json({ message: "Responses returned.", data: response.rows });
-    }
-  });
-};
-
-// GET /dungeonquestion
-getDungeonQuestion = (db) => (req, res, next) => {
-  const query = {
-    question_1: req.query.question_1,
-    question_2: req.query.question_2,
-    question_3: req.query.question_3,
-    question_4: req.query.question_4,
-    question_5: req.query.question_5,
-  };
-
-  var queryText = `SELECT question_id, question_body FROM question, instructor \
-  WHERE instructor_id = 1 \
-  AND question_id <> ` + query.question_1 + ` \
-  AND question_id <> ` + query.question_2 + ` \
-  AND question_id <> ` + query.question_3 + ` \
-  AND question_id <> ` + query.question_4 + ` \
-  AND question_id <> ` + query.question_5 + ``;
-
-  db.query(queryText, (err, response) => {
-    if (err) {
-      console.log("Error getting rows:", err.detail);
-      res.status(500).json({ message: err });
-    } else {
-      res.status(200).json({ message: "Questions returned.", data: response.rows });
-    }
-  });
-};
-
-// PUT /updungeon
-putDungeon = (db) => (req, res, next) => {
-  const query = {
-    player_id: req.body.player_id,
-    id_1: req.body.id_1,
-    id_2: req.body.id_2,
-    id_3: req.body.id_3,
-    id_4: req.body.id_4,
-    id_5: req.body.id_5,
-  };
-
-  var queryText =
-    `UPDATE dungeon \
-  SET lock = False, question_1 = ` +
-    query.id_1 +
-    `, question_2 = ` +
-    query.id_2 +
-    `, question_3 = ` +
-    query.id_3 +
-    `, question_4 = ` +
-    query.id_4 +
-    `, question_5 = ` +
-    query.id_5 +
-    ` WHERE player_name = (SELECT player_name FROM player \
-    WHERE player_id = ` +
-    query.player_id +
-    `)`;
-
-  db.query(queryText, (err, response) => {
-    if (err) {
-      console.log("Error getting rows:", err.detail);
-      res.status(500).json({ message: err });
-    } else {
-      res.status(200).json({ message: "Dungeon updated." });
-    }
-  });
-};
-
-// PUT /updungeonweb
-putDungeonWeb = (db) => (req, res, next) => {
-  const query = {
-    instructor_id: req.body.instructor_id,
-    id_1: req.body.id_1,
-    id_2: req.body.id_2,
-    id_3: req.body.id_3,
-    id_4: req.body.id_4,
-    id_5: req.body.id_5,
-  };
-
-  var queryText =
-    `UPDATE instructor \
-  SET question_1 = ` +
-    query.id_1 +
-    `, question_2 = ` +
-    query.id_2 +
-    `, question_3 = ` +
-    query.id_3 +
-    `, question_4 = ` +
-    query.id_4 +
-    `, question_5 = ` +
-    query.id_5 +
-    ` WHERE instructor_id = ` +
-    query.instructor_id;
-
-  console.log(queryText);
-
-  db.query(queryText, (err, response) => {
-    if (err) {
-      console.log("Error getting rows:", err.detail);
-      res.status(500).json({ message: err });
-    } else {
-      res.status(200).json({ message: "Dungeon updated." });
-    }
-  });
-};
-
-// PUT /updungeonweb
-putDungeonLockWeb = (db) => (req, res, next) => {
-  const query = {
-    instructor_id: req.body.instructor_id,
-  };
-
-  var queryText =
-    `UPDATE instructor \
-  SET lock = NOT lock \
-  WHERE instructor_id = ` + query.instructor_id;
-
-  console.log(queryText);
-
-  db.query(queryText, (err, response) => {
-    if (err) {
-      console.log("Error getting rows:", err.detail);
-      res.status(500).json({ message: err });
-    } else {
-      res.status(200).json({ message: "Dungeon Lock updated." });
+      res
+        .status(200)
+        .json({ message: "Responses returned.", data: response.rows });
     }
   });
 };
@@ -251,8 +156,4 @@ module.exports = {
   getAccuracy,
   getProgress,
   getResponses,
-  getDungeonQuestion,
-  putDungeon,
-  putDungeonWeb,
-  putDungeonLockWeb,
 };

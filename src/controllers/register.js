@@ -1,5 +1,12 @@
 const bcrypt = require("bcrypt-nodejs");
-
+/** @module Webbapp_Registration*/
+/**
+ * @name registerHandler
+ * @description Returns middleware function that registers a new instructor sends success/failure as response.
+ * @function
+ * @param {object} db - The postpresql db instance
+ * @return {function} - The middleware function
+ */
 const registerHandlerWeb = (db) => (req, res) => {
   const query = {
     name: req.body.name,

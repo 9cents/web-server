@@ -1,8 +1,14 @@
 module.exports = {
-  HOST: "172.21.148.168",
-  USER: "admin",
-  PASSWORD: "ninecent",
-  DB: "Ninecent_DB",
+  // HOST: "172.21.148.168",
+  // USER: "admin",
+  // PASSWORD: "ninecent",
+  // DB: "Ninecent_DB",
+  // PORT: 5432,
+  // dialect: "postgres",
+  HOST: "localhost",
+  USER: "damien",
+  PASSWORD: null,
+  DB: "cz3003dump",
   PORT: 5432,
   dialect: "postgres",
   pool: {
