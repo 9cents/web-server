@@ -6,6 +6,11 @@ const resourcesSchemas = require("./tableSchemas");
 const { getFunc, putFunc, deleteFunc } = require("./crudFunctions");
 
 const {
+  getCountPlayers,
+  getCountTowers,
+  getCountLevels,
+  getCountQuestions,
+  getCountResponses,
   getAccuracy,
   getProgress,
   getDungeonQuestion,
@@ -13,6 +18,7 @@ const {
   putDungeonWeb,
   putDungeonLockWeb,
   getResponses,
+  getQuestionAccuracy,
 } = require("./webappFunctions");
 
 resourcesSchemas.forEach((resource) => {
@@ -21,6 +27,12 @@ resourcesSchemas.forEach((resource) => {
   router.delete(`/${resource.name}`, deleteFunc(db, resource));
 });
 
+router.get("/countplayers", getCountPlayers(db));
+router.get("/counttowers", getCountTowers(db));
+router.get("/countlevels", getCountLevels(db));
+router.get("/countquestions", getCountQuestions(db));
+router.get("/countresponses", getCountResponses(db));
+router.get("/questionaccuracy", getQuestionAccuracy(db));
 router.get("/accuracy", getAccuracy(db));
 router.get("/progressreport", getProgress(db));
 router.get("/responsedata", getResponses(db));

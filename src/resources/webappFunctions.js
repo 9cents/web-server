@@ -1,3 +1,128 @@
+// GET /countplayers
+getCountPlayers = (db) => (req, res, next) => {
+  var queryText =
+    `SELECT COUNT(*) FROM player;`;
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows:", err.detail);
+      res.status(500).json({ message: err });
+    } else {
+      res.status(200).json({ message: "Number of players returned.", data: response.rows[0].count });
+    }
+  });
+};
+
+// GET /counttowers
+getCountTowers = (db) => (req, res, next) => {
+  var queryText =
+    `SELECT COUNT(*) FROM tower;`;
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows:", err.detail);
+      res.status(500).json({ message: err });
+    } else {
+      res.status(200).json({ message: "Number of towers returned.", data: response.rows[0].count });
+    }
+  });
+};
+
+// GET /countlevels
+getCountLevels = (db) => (req, res, next) => {
+  var queryText =
+    `SELECT COUNT(*) FROM level;`;
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows:", err.detail);
+      res.status(500).json({ message: err });
+    } else {
+      res.status(200).json({ message: "Number of levels returned.", data: response.rows[0].count });
+    }
+  });
+};
+
+// GET /countquestions
+getCountQuestions = (db) => (req, res, next) => {
+  var queryText =
+    `SELECT COUNT(*) FROM question;`;
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows:", err.detail);
+      res.status(500).json({ message: err });
+    } else {
+      res.status(200).json({ message: "Number of questions returned.", data: response.rows[0].count });
+    }
+  });
+};
+
+// GET /countresponses
+getCountResponses = (db) => (req, res, next) => {
+  var queryText =
+    `SELECT COUNT(*) FROM response;`;
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows:", err.detail);
+      res.status(500).json({ message: err });
+    } else {
+      res.status(200).json({ message: "Number of responses returned.", data: response.rows[0].count });
+    }
+  });
+};
+
+// GET /questionaccuracy
+getQuestionAccuracy = (db) => (req, res, next) => {
+  const query = {
+    player_id: req.query.player_id,
+  };
+
+  var queryText =
+    `WITH qnresponse AS
+    (SELECT question.question_id, COUNT(*) AS total
+     FROM question, response, answer
+    WHERE response.answer_id = answer.answer_id
+    AND answer.question_id = question.question_id
+    GROUP BY question.question_id),
+    
+    qncorrect AS
+    (SELECT question.question_id, COUNT(*) AS correct
+     FROM question, response, answer
+    WHERE response.answer_id = answer.answer_id
+    AND answer.question_id = question.question_id
+     AND answer.correct = True
+    GROUP BY question.question_id),
+    
+    qnsummary AS
+    (SELECT qnresponse.question_id, 
+     CAST(COALESCE(correct,0) as FLOAT) AS correct, 
+     CAST(total as FLOAT)
+     FROM qnresponse JOIN qncorrect 
+     ON qnresponse.question_id = qncorrect.question_id)
+    
+    SELECT question_body, answer_body, tower_name, 
+    COALESCE(qnsummary.correct/total*100, 0) AS accuracy
+    FROM question, qnsummary, level, tower, answer
+    WHERE question.question_id = qnsummary.question_id
+    AND question.level_id = level.level_id
+    AND level.tower_id = tower.tower_id
+    AND question.question_id = answer.question_id
+    AND answer.correct = True
+    ORDER BY accuracy DESC
+    LIMIT 30`;
+
+  db.query(queryText, (err, response) => {
+    if (err) {
+      console.log("Error getting rows:", err.detail);
+      res.status(500).json({ message: err });
+    } else {
+      res.status(200).json({ message: "Question accuracy returned.", data: response.rows });
+    }
+  });
+};
+
 // GET /accuracy
 getAccuracy = (db) => (req, res, next) => {
   const query = {
@@ -248,6 +373,12 @@ putDungeonLockWeb = (db) => (req, res, next) => {
 };
 
 module.exports = {
+  getCountPlayers,
+  getCountTowers,
+  getCountLevels,
+  getCountQuestions,
+  getCountResponses,
+  getQuestionAccuracy,
   getAccuracy,
   getProgress,
   getResponses,
