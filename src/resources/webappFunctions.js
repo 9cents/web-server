@@ -1,88 +1,193 @@
 /** @module Webapp_Functions */
 
 // GET /countplayers
-getCountPlayers = (db) => (req, res, next) => {
-  var queryText =
-    `SELECT COUNT(*) FROM player;`;
+/**
+ * @name getCountPlayers
+ * @description Returns middleware that retreives number of players and sends as response.
+ * @function
+ * @param {object} db - The postpresql db instance
+ * @return {function} [getCountPlayersMiddleware]{@link module:Game_Functions~getCountPlayersMiddleware} - The middleware function
+ */
+getCountPlayers = (db) =>
+  /**
+   * @name getCountPlayersMiddleware
+   * @function
+   * @param req {Object} The request
+   * @param res {Object} The response
+   * @param {Function} next The next middleware
+   *
+   */
+  (req, res, next) => {
+    var queryText = `SELECT COUNT(*) FROM player;`;
 
-  db.query(queryText, (err, response) => {
-    if (err) {
-      console.log("Error getting rows:", err.detail);
-      res.status(500).json({ message: err });
-    } else {
-      res.status(200).json({ message: "Number of players returned.", data: response.rows[0].count });
-    }
-  });
-};
-
-// GET /counttowers
-getCountTowers = (db) => (req, res, next) => {
-  var queryText =
-    `SELECT COUNT(*) FROM tower;`;
-
-  db.query(queryText, (err, response) => {
-    if (err) {
-      console.log("Error getting rows:", err.detail);
-      res.status(500).json({ message: err });
-    } else {
-      res.status(200).json({ message: "Number of towers returned.", data: response.rows[0].count });
-    }
-  });
-};
-
-// GET /countlevels
-getCountLevels = (db) => (req, res, next) => {
-  var queryText =
-    `SELECT COUNT(*) FROM level;`;
-
-  db.query(queryText, (err, response) => {
-    if (err) {
-      console.log("Error getting rows:", err.detail);
-      res.status(500).json({ message: err });
-    } else {
-      res.status(200).json({ message: "Number of levels returned.", data: response.rows[0].count });
-    }
-  });
-};
-
-// GET /countquestions
-getCountQuestions = (db) => (req, res, next) => {
-  var queryText =
-    `SELECT COUNT(*) FROM question;`;
-
-  db.query(queryText, (err, response) => {
-    if (err) {
-      console.log("Error getting rows:", err.detail);
-      res.status(500).json({ message: err });
-    } else {
-      res.status(200).json({ message: "Number of questions returned.", data: response.rows[0].count });
-    }
-  });
-};
-
-// GET /countresponses
-getCountResponses = (db) => (req, res, next) => {
-  var queryText =
-    `SELECT COUNT(*) FROM response;`;
-
-  db.query(queryText, (err, response) => {
-    if (err) {
-      console.log("Error getting rows:", err.detail);
-      res.status(500).json({ message: err });
-    } else {
-      res.status(200).json({ message: "Number of responses returned.", data: response.rows[0].count });
-    }
-  });
-};
-
-// GET /questionaccuracy
-getQuestionAccuracy = (db) => (req, res, next) => {
-  const query = {
-    player_id: req.query.player_id,
+    db.query(queryText, (err, response) => {
+      if (err) {
+        console.log("Error getting rows:", err.detail);
+        res.status(500).json({ message: err });
+      } else {
+        res.status(200).json({
+          message: "Number of players returned.",
+          data: response.rows[0].count,
+        });
+      }
+    });
   };
 
-  var queryText =
-    `WITH qnresponse AS
+// GET /counttowers
+/**
+ * @name getCountTowers
+ * @description Returns middleware that retreives number of towers and sends as response.
+ * @function
+ * @param {object} db - The postpresql db instance
+ * @return {function} [getCountTowersMiddleware]{@link module:Game_Functions~getCountTowersMiddleware} - The middleware function
+ */
+getCountTowers = (db) =>
+  /**
+   * @name getCountTowersMiddleware
+   * @function
+   * @param req {Object} The request
+   * @param res {Object} The response
+   * @param {Function} next The next middleware
+   *
+   */
+  (req, res, next) => {
+    var queryText = `SELECT COUNT(*) FROM tower;`;
+
+    db.query(queryText, (err, response) => {
+      if (err) {
+        console.log("Error getting rows:", err.detail);
+        res.status(500).json({ message: err });
+      } else {
+        res.status(200).json({
+          message: "Number of towers returned.",
+          data: response.rows[0].count,
+        });
+      }
+    });
+  };
+
+// GET /countlevels
+/**
+ * @name getCountLevels
+ * @description Returns middleware that retreives number of questions and sends as response.
+ * @function
+ * @param {object} db - The postpresql db instance
+ * @return {function} [getCountLevelsMiddleware]{@link module:Game_Functions~getCountLevelsMiddleware} - The middleware function
+ */
+getCountLevels = (db) =>
+  /**
+   * @name getCountLevelsMiddleware
+   * @function
+   * @param req {Object} The request
+   * @param res {Object} The response
+   * @param {Function} next The next middleware
+   *
+   */
+  (req, res, next) => {
+    var queryText = `SELECT COUNT(*) FROM level;`;
+
+    db.query(queryText, (err, response) => {
+      if (err) {
+        console.log("Error getting rows:", err.detail);
+        res.status(500).json({ message: err });
+      } else {
+        res.status(200).json({
+          message: "Number of levels returned.",
+          data: response.rows[0].count,
+        });
+      }
+    });
+  };
+
+// GET /countquestions
+/**
+ * @name getCountQuestions
+ * @description Returns middleware that retreives number of questions and sends as response.
+ * @function
+ * @param {object} db - The postpresql db instance
+ * @return {function} [getCountQuestionsMiddleware]{@link module:Game_Functions~getCountQuestionsMiddleware} - The middleware function
+ */
+getCountQuestions = (db) =>
+  /**
+   * @name getCountQuestionsMiddleware
+   * @function
+   * @param req {Object} The request
+   * @param res {Object} The response
+   * @param {Function} next The next middleware
+   *
+   */
+  (req, res, next) => {
+    var queryText = `SELECT COUNT(*) FROM question;`;
+
+    db.query(queryText, (err, response) => {
+      if (err) {
+        console.log("Error getting rows:", err.detail);
+        res.status(500).json({ message: err });
+      } else {
+        res.status(200).json({
+          message: "Number of questions returned.",
+          data: response.rows[0].count,
+        });
+      }
+    });
+  };
+
+// GET /countresponses
+/**
+ * @name getCountResponses
+ * @description Returns middleware that retreives number of responses and sends as response.
+ * @function
+ * @param {object} db - The postpresql db instance
+ * @return {function} [getCountResponsesMiddleware]{@link module:Game_Functions~getCountResponsesMiddleware} - The middleware function
+ */
+getCountResponses = (db) =>
+  /**
+   * @name getCountResponsesMiddleware
+   * @function
+   * @param req {Object} The request
+   * @param res {Object} The response
+   * @param {Function} next The next middleware
+   *
+   */
+  (req, res, next) => {
+    var queryText = `SELECT COUNT(*) FROM response;`;
+
+    db.query(queryText, (err, response) => {
+      if (err) {
+        console.log("Error getting rows:", err.detail);
+        res.status(500).json({ message: err });
+      } else {
+        res.status(200).json({
+          message: "Number of responses returned.",
+          data: response.rows[0].count,
+        });
+      }
+    });
+  };
+
+// GET /questionaccuracy
+/**
+ * @name getQuestionAccuracy
+ * @description Returns middleware that retreives a specified player's question accuracy in game and sends as response.
+ * @function
+ * @param {object} db - The postpresql db instance
+ * @return {function} [getQuestionAccuracyMiddleware]{@link module:Game_Functions~getQuestionAccuracyMiddleware} - The middleware function
+ */
+getQuestionAccuracy = (db) =>
+  /**
+   * @name getQuestionAccuracyMiddleware
+   * @function
+   * @param req {Object} The request
+   * @param res {Object} The response
+   * @param {Function} next The next middleware
+   *
+   */
+  (req, res, next) => {
+    const query = {
+      player_id: req.query.player_id,
+    };
+
+    var queryText = `WITH qnresponse AS
     (SELECT question.question_id, COUNT(*) AS total
      FROM question, response, answer
     WHERE response.answer_id = answer.answer_id
@@ -115,15 +220,20 @@ getQuestionAccuracy = (db) => (req, res, next) => {
     ORDER BY accuracy
     LIMIT 30`;
 
-  db.query(queryText, (err, response) => {
-    if (err) {
-      console.log("Error getting rows:", err.detail);
-      res.status(500).json({ message: err });
-    } else {
-      res.status(200).json({ message: "Question accuracy returned.", data: response.rows });
-    }
-  });
-};
+    db.query(queryText, (err, response) => {
+      if (err) {
+        console.log("Error getting rows:", err.detail);
+        res.status(500).json({ message: err });
+      } else {
+        res
+          .status(200)
+          .json({
+            message: "Question accuracy returned.",
+            data: response.rows,
+          });
+      }
+    });
+  };
 
 // GET /accuracy
 /**
@@ -131,15 +241,24 @@ getQuestionAccuracy = (db) => (req, res, next) => {
  * @description Returns middleware that retreives a specified player's accuracy in game and sends as response.
  * @function
  * @param {object} db - The postpresql db instance
- * @return {function} - The middleware function
+ * @return {function} [getAccuracyMiddleware]{@link module:Game_Functions~getAccuracyMiddleware} - The middleware function
  */
-getAccuracy = (db) => (req, res, next) => {
-  const query = {
-    player_id: req.query.player_id,
-  };
+getAccuracy = (db) =>
+  /**
+   * @name getAccuracyMiddleware
+   * @function
+   * @param req {Object} The request
+   * @param res {Object} The response
+   * @param {Function} next The next middleware
+   *
+   */
+  (req, res, next) => {
+    const query = {
+      player_id: req.query.player_id,
+    };
 
-  var queryText =
-    `WITH num_correct AS(SELECT player_id, CAST(COUNT(correct) as FLOAT) AS nums\
+    var queryText =
+      `WITH num_correct AS(SELECT player_id, CAST(COUNT(correct) as FLOAT) AS nums\
   FROM response, answer\
   WHERE response.answer_id = answer.answer_id\
   AND answer.correct = True\
@@ -155,17 +274,17 @@ getAccuracy = (db) => (req, res, next) => {
   AND num_total.player_id = player.player_id\
   AND player.player_id = ` + query.player_id;
 
-  db.query(queryText, (err, response) => {
-    if (err) {
-      console.log("Error getting rows:", err.detail);
-      res.status(500).json({ message: err });
-    } else {
-      res
-        .status(200)
-        .json({ message: "Accuracy returned.", data: response.rows });
-    }
-  });
-};
+    db.query(queryText, (err, response) => {
+      if (err) {
+        console.log("Error getting rows:", err.detail);
+        res.status(500).json({ message: err });
+      } else {
+        res
+          .status(200)
+          .json({ message: "Accuracy returned.", data: response.rows });
+      }
+    });
+  };
 
 // GET /progressreport
 /**
@@ -173,15 +292,23 @@ getAccuracy = (db) => (req, res, next) => {
  * @description Returns middleware that retreives a specified player's progress in game and sends as response.
  * @function
  * @param {object} db - The postpresql db instance
- * @return {function} - The middleware function
+ * @return {function} [getProgressMiddleware]{@link module:Game_Functions~getProgressMiddleware} - The middleware function
  */
-getProgress = (db) => (req, res, next) => {
-  const query = {
-    player_id: req.query.player_id,
-  };
+getProgress = (db) =>
+  /**
+   * @name getProgressMiddleware
+   * @function
+   * @param req {Object} The request
+   * @param res {Object} The response
+   * @param {Function} next The next middleware
+   *
+   */
+  (req, res, next) => {
+    const query = {
+      player_id: req.query.player_id,
+    };
 
-  var queryText =
-    `WITH num_level AS
+    var queryText = `WITH num_level AS
     (SELECT level.tower_id, MAX(level_id)-MIN(level_id)+1 AS nums FROM level, tower
     WHERE level.tower_id=tower.tower_id
     GROUP BY level.tower_id
@@ -190,9 +317,7 @@ getProgress = (db) => (req, res, next) => {
     current_progress AS
     (SELECT tower_id, level_id AS current FROM player, progress
     WHERE progress.player_id = player.player_id
-    AND player.player_id = ` +
-    query.player_id +
-    `),
+    AND player.player_id = $1),
 
     min_level AS
     (SELECT level.tower_id, MIN(level_id)-1 AS nums FROM level, tower
@@ -212,9 +337,7 @@ getProgress = (db) => (req, res, next) => {
     AND answer.question_id = question.question_id
     AND question.level_id = level.level_id
     AND answer.correct = True
-    AND player_id = ` +
-    query.player_id +
-    ` GROUP BY level.tower_id),
+    AND player_id = $2 GROUP BY level.tower_id),
       
     num_total AS
     (SELECT level.tower_id, CAST(COUNT(correct) as FLOAT) AS nums
@@ -222,9 +345,7 @@ getProgress = (db) => (req, res, next) => {
     WHERE response.answer_id = answer.answer_id
     AND answer.question_id = question.question_id
     AND question.level_id = level.level_id
-    AND player_id = ` +
-    query.player_id +
-    ` GROUP BY level.tower_id),
+    AND player_id = $3 GROUP BY level.tower_id),
       
     percentage AS
     (SELECT num_correct.tower_id, COALESCE(num_correct.nums/num_total.nums*100, 0) AS accuracy
@@ -237,17 +358,21 @@ getProgress = (db) => (req, res, next) => {
     LEFT JOIN percentage ON tower.tower_id = percentage.tower_id
     ORDER BY tower.tower_id`;
 
-  db.query(queryText, (err, response) => {
-    if (err) {
-      console.log("Error getting rows:", err.detail);
-      res.status(500).json({ message: err });
-    } else {
-      res
-        .status(200)
-        .json({ message: "Progress returned.", data: response.rows });
-    }
-  });
-};
+    db.query(
+      queryText,
+      [query.player_id, query.player_id, query.player_id],
+      (err, response) => {
+        if (err) {
+          console.log("Error getting rows:", err.detail);
+          res.status(500).json({ message: err });
+        } else {
+          res
+            .status(200)
+            .json({ message: "Progress returned.", data: response.rows });
+        }
+      }
+    );
+  };
 
 // GET /responsedata
 /**
@@ -255,27 +380,36 @@ getProgress = (db) => (req, res, next) => {
  * @description Returns middleware that retreives a specified player's responses in game and sends as response.
  * @function
  * @param {object} db - The postpresql db instance
- * @return {function} - The middleware function
+ * @return {function} [getResponsesMiddleware]{@link module:Game_Functions~getResponsesMiddleware} - The middleware function
  */
-getResponses = (db) => (req, res, next) => {
-  var queryText = `SELECT response_id, question_body, answer_body, correct
+getResponses = (db) =>
+  /**
+   * @name getResponsesMiddleware
+   * @function
+   * @param req {Object} The request
+   * @param res {Object} The response
+   * @param {Function} next The next middleware
+   *
+   */
+  (req, res, next) => {
+    var queryText = `SELECT response_id, question_body, answer_body, correct
   FROM response, question, answer
   WHERE response.answer_id = answer.answer_id
   AND answer.question_id = question.question_id
   AND response.player_id = ${req.query.player_id}
   ORDER BY response_id DESC`;
 
-  db.query(queryText, (err, response) => {
-    if (err) {
-      console.log("Error getting rows:", err.detail);
-      res.status(500).json({ message: err });
-    } else {
-      res
-        .status(200)
-        .json({ message: "Responses returned.", data: response.rows });
-    }
-  });
-};
+    db.query(queryText, (err, response) => {
+      if (err) {
+        console.log("Error getting rows:", err.detail);
+        res.status(500).json({ message: err });
+      } else {
+        res
+          .status(200)
+          .json({ message: "Responses returned.", data: response.rows });
+      }
+    });
+  };
 
 module.exports = {
   getCountPlayers,
