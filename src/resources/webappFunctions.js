@@ -112,7 +112,7 @@ getQuestionAccuracy = (db) => (req, res, next) => {
     AND level.tower_id = tower.tower_id
     AND question.question_id = answer.question_id
     AND answer.correct = True
-    ORDER BY accuracy DESC
+    ORDER BY accuracy
     LIMIT 30`;
 
   db.query(queryText, (err, response) => {

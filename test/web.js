@@ -209,11 +209,11 @@ describe('Web Interface', function() {
                 .put('/instructor')
                 .set('content-type', 'application/json')
                 .send({
-                    question_1: 1,
-                    question_2: 2,
-                    question_3: 3,
-                    question_4: 4,
-                    question_5: 5,
+                    question_1: 31,
+                    question_2: 32,
+                    question_3: 33,
+                    question_4: 34,
+                    question_5: 35,
                     lock: true,
                     conditions:{
                         instructor_name: instructor.instructor_name
