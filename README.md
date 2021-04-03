@@ -5,6 +5,8 @@
 1. PostgreSQL database
 2. Check `/src/database/db.config.js` that it is accurate to connect to your PostgreSQL database
 
+Refer to [game-server repo](https://github.com/9cents/game-server) for more details
+
 ---
 ## Installation
 
