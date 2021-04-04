@@ -326,7 +326,7 @@ getProgress = (db) =>
     ORDER BY level.tower_id),
 
     level_progress AS
-    (SELECT current_progress.tower_id, current_progress.current-min_level.nums AS current FROM current_progress, min_level
+    (SELECT DISTINCT current_progress.tower_id, current_progress.current-min_level.nums AS current FROM current_progress, min_level
     WHERE current_progress.tower_id = min_level.tower_id
     ),
     
